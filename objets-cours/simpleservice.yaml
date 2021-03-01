@@ -1,18 +1,18 @@
 ---
-apiVersion:      # the apiVersion to use
-kind:            # example Pod / Deployment
+apiVersion: v1         # the apiVersion to use
+kind: Pod              # example Pod / Deployment
 metadata:
-  name:          # name to apply
+  name: simpleservice  # name to apply
   labels:
-    name:        # label name
+    name: simpleservice-web  # label name
 spec:
   containers:
   -
-    name:        # name of container
-    image:       # image to use if no URL provided hub.docker.com is used
-    ports:
+    name: simpleservice-web                     # name of container
+    image: mhausenblas/simpleservice:0.5.0      # image to use if no URL provided hub.docker.com is used
+    ports: 
      -
-       name:      # port name
-       containerPort:      # access on this port (int)
-       protocol:           # TCP or UDP
+       name: web               # port name
+       containerPort: 9876     # access on this port (int)
+       protocol: TCP           # TCP or UDP
 
