@@ -1,3 +1,5 @@
+git clone git@github.com:sylvainstgermain/kubernetes-course.git
+
 https://www.cncf.io/certification/ckad/
 https://github.com/cncf/curriculum
 

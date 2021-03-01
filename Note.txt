@@ -70,3 +70,21 @@ Annoncement Kubernetes plus de support à Docker
 * Kubernetes n'a pas besoins de dockershim, on a juste besoin du container runtime
 * Docker est parfaitement compatible
 * No big deal !
+
+
+Applications
+    Monolithic
+        1 executable : Database, client side, serveur side application
+        Easy to start one executable
+        Easy to develop
+        Difficile quand plusieurs developpeur mettre des changements
+        Moins agile
+
+    SOA (service oriented applicaiton)
+        Account, cart, orders - divide things
+        Step up as agility
+        services share one Database
+        All application must speak the same language to the Database
+
+
+    Microservices

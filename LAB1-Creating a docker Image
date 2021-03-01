@@ -1,0 +1,4 @@
+cd ~
+groups student
+sudo usermod -aG docker student
+mkdir ~/downloads/
