@@ -1,0 +1,26 @@
+ok: [master-2]
+ok: [master-1]
+ok: [master-3]
+ok: [node-1]
+ok: [node-2]
+ok: [node-3]
+
+------------------------------------------
+Kubectl
+------------------------------------------
+# nodes
+kubectl get -h
+kubectl get nodes
+fping -A master-1 master-2 master-3 node-1 node-2 node-3
+kubectl describe nodes
+
+# pods
+kubectl get pods
+kubectl apply -f my_first_pod.yaml
+kubectl get pods
+
+------------------------------------------
+Docker
+------------------------------------------
+sudo docker image ls
+sudo docker ps -a
