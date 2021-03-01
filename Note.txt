@@ -55,4 +55,18 @@ Kubernetes
 Minimum - 1 node (ok for practice but not ops)
 Maximum - 5000 nodes
 
+3 nodes Minimum
+3 masters - 1 is not enough even number is not good odd number absolutly
 
+Dérange quelle noeud on roule dessus
+
+* Possible d'avoir plus d'un cluster
+* Cette semaine on jouera avec un cluster
+
+Annoncement Kubernetes plus de support à Docker
+* Docker grand pere des containers
+* Kubernetes preference à Docker
+* Ce qu'il ne mantienne plus est "dockershim" : cli, Volumes, API, Network, server
+* Kubernetes n'a pas besoins de dockershim, on a juste besoin du container runtime
+* Docker est parfaitement compatible
+* No big deal !

@@ -1,0 +1,4 @@
+student@bchd:~/static$ ssh -T git@github.com
+Warning: Permanently added the RSA host key for IP address '140.82.114.3' to the list of known hosts.
+Hi alta3-student1! You've successfully authenticated, but GitHub does not provide shell access.
+
