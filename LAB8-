@@ -1,0 +1,24 @@
+kubectl config get-contexts
+
+CURRENT   NAME                       CLUSTER                    AUTHINFO   NAMESPACE
+          dev-context                kubernetes-the-alta3-way   admin      dev
+*         kubernetes-the-alta3-way   kubernetes-the-alta3-way   admin      default
+          prod-context               kubernetes-the-alta3-way   admin      prod
+          test-context               kubernetes-the-alta3-way   admin      test
+
+kubectl config use-context kubernetes-the-alta3-way           
+
+http://yaml.org/spec/1.2/spec.html
+
+kubectl api-resources
+
+apiVersion:
+kind:
+metadata:
+spec:
+
+apiVersion: is a required key field. It defines the Kubernetes API you are using.
+kind: For this lab, the value field will be either Pod or Deployment.
+metadata: A required key that helps uniquely identify the object. Subkeys are name, uid, labels, and namespace.
+spec: Specifies the desired state of an object. If a spec is deleted, the object will be purged from the system.
+status: PURELY FYI - A system generated value that shows the actual state of the object at the current time.

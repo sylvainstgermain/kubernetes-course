@@ -190,6 +190,10 @@ Les namespace permettre de segmenter les ressources
 More precise
 
 
-LAB 4
+Manifest aller sur kubernetes et copier
+
+---------------------------
+TEMPLATES important
+----------------------------
 
 
