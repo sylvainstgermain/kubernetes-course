@@ -22,3 +22,38 @@ kind: For this lab, the value field will be either Pod or Deployment.
 metadata: A required key that helps uniquely identify the object. Subkeys are name, uid, labels, and namespace.
 spec: Specifies the desired state of an object. If a spec is deleted, the object will be purged from the system.
 status: PURELY FYI - A system generated value that shows the actual state of the object at the current time.
+
+
+Focus on that key kind:. The kind: key describes the object you want 
+kubernetes to create. Curious what the entire list of objects is?
+ Issue the following command. The far right column reflects the 
+ 'value' you could place to the right of the key kind: within your manifest.
+
+kubectl api-resources
+
+https://hub.docker.com/r/mhausenblas/simpleservice/
+
+kubectl create -f simpleservice.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
