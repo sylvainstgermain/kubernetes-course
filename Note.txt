@@ -107,6 +107,7 @@ PODS
     Quel port est accessible sur ce Pod
     Change les rles sur comment se connecter au container
 
+   # SEVEN - Allowed and not allowed change
     ISOLATED : CSGROUP - Resource protection
     POD : IPC - Quelle mémoire est partager, inter process commmunication
     POD : Network - network, device stack, ports,
@@ -120,3 +121,67 @@ Docker is just a wrapper on LXC !
 LAB 1 - Docker container + Image
 docker stop $(sudo docker ps -aq)
 sudo docker stop $(sudo docker ps -aq)
+
+----------------------------------------------
+Plusieurs containers dans un POD
+
+1 container de plus est creer un dummy container.
+Creer individuellement, c'ets un sandbox qui fait le lienentre
+tous les containers.
+
+Il inclut les autre container dans son namespace (IPC + NETWORK + UTS)
+* Tous les pod sont maintenant identifiable par la même ip adresse
+* Prend sont IPC et le transfert à tous, tous les container peuvent maintenant communiquer 
+par localhost, les container parlent maintenant rapidement entre eux.
+* Permet à chacun des container de presenter le même hostname
+* Permet à plusieurs applicaiton de fonctionner ensemble.
+* Il fournissent des service à l'applicaiton principale.
+* Le sandbox est pas necessaire si un pod à seulement un container
+* Kubernetes mange PODS not Containers !!! Docker manage les containers
+* Un POD existe seulement sur un node
+* 2 PODS are the same ex:webby, ils sont des replica est comme ça ils peuvent exister
+  sous forme de replica.
+* Un PODS est la forme la plus atomiques de Kubernetes
+
+Kubectl -> API serveur -> Master
+Communication avec le master 
+Les worker node on des kubelet (communique avec le worker)
+* L'API server parle aussi au scheduler, part of master brain that play tetris : combien de resources
+disponible et ou je met l'application.
+* Communique avec ETC Etcd - maintain the sate of the cluster
+
+API -> Communication HUB 
+
+Etcd
+    Key value store
+
+Kubectl -> client pour parler au API server
+kubeconfig file : file located on the local machine
+        Contient la liste des cluster que l'on peut parler
+
+Kubelet :
+   Est sur les worker et master
+   Recoit les ordres du master node
+   Retourne le status report
+   Consistently check the state of what is run inside the node
+   Kubelet est reponsale de passer les commendes docker
+
+Controller-manager
+    Chef de police
+    S'assure que les règles sont suivi
+    ex: roule 3 replicas d'une application exemple un load balancer
+    doit avoir 3 replica en tout temps
+    
+    Un replica meurt -> kubelet raport -> Scheduler on doit avoir 3 replica
+    -> 
+
+Docker doit rouler sur tous les nodes pour les containers dans les PODS
+
+Registry docker.io ou local
+
+kube-proxy : pas d,info tout de suite
+    C'est sur tous les noeuds
+    Essentiel pour renforcer le rles pour le traffic reseau entre les containers
+
+
+
