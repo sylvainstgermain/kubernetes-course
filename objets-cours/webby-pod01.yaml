@@ -4,7 +4,7 @@ metadata:
   name: webservice01
 spec:
   containers:
-  - name: webster # name of container
+  - name: webby # name of container
     image: bchd.registry/alta3-webby # name of the image to use
     ports:
     - name: web # name for port mapping
@@ -19,3 +19,4 @@ spec:
 #   containers:
 #   - name: webster
 #     image: bchd.registry/alta3-webby
+# https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core

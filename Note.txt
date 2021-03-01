@@ -13,6 +13,8 @@ Please be prepared to access your online course materials with either the Chrome
 
 --------------------------------------------------------------------
 https://live.alta3.com/groups/cheerful-crickets-burst/dashboard
+sylvain
+sylvain.st-germain@canada.ca
 
 https://tmuxcheatsheet.com/
 TMUX    : SHELL - Personal shell 

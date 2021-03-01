@@ -35,6 +35,24 @@ https://hub.docker.com/r/mhausenblas/simpleservice/
 
 kubectl create -f simpleservice.yaml
 
+kubectl describe pod simpleservice
+
+kubectl delete -f simpleservice.yaml
+
+kubectl describe pod webservice01
+
+kubectl delete -f webby-pod01.yaml
+
+CHALLENGE 01 (OPTIONAL) - Finish early? Repeat the exercise 
+by using the dev-context. You can select this context by running 
+kubectl config use-context dev-context. You can use the same 
+manifests when you repeat the lab.
+
+kubectl config use-context dev-context
+kubectl create -f objets-cours/simpleservice.yaml
+kubectl get pods
+
+
 
 
 
