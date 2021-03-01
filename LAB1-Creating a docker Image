@@ -2,3 +2,207 @@ cd ~
 groups student
 sudo usermod -aG docker student
 mkdir ~/downloads/
+wget https://dl.google.com/go/go1.11.1.linux-amd64.tar.gz
+cd ~
+mkdir -p ~/go/src/github.com/alta3/hello
+sudo tar -C /usr/local -vxzf ~/downloads/go1.11.1.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
+export GOBIN=~/go/bin
+export PATH=$PATH:~/go/bin
+cd ~/go/src/github.com/alta3/hello
+
+ivim hello.go
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, world.")
+}
+
+go install
+hello
+cd ~/go/src/github.com/
+mv ~/.ssh/config ~/.ssh/config.old
+pwd -> /home/student/go/src/github.com
+git clone https://github.com/alta3/webby.git
+cd webby/
+go get .
+You can read more about building docker containers with Go 
+here https://blog.codeship.com/building-minimal-docker-containers-for-go-applications/
+
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o webserver .
+
+For your information, this is what the extra directives mean:
+CGO_ENABLED=0 - Disable cgo to create a static binary
+GOOS=linux - (GO Operating System) compiles the OS hooks INTO the binary
+-a - flag means to rebuild all the packages we're using
+-installsuffix cgo - Look for packages in $GOROOT/pkg/$GOOS_$GOARCH_cgo
+-o webserver - Write compiled code to a file named webserver
+-----------------------------------------------------
+Commence convertir webby and container 
+-----------------------------------------------------
+28 ---- aux1 = port 2224
+               +------------>
+           Load your files into a scratch container
+              +---------------------------------+
+              |                                 |
+              |                                 |
++-------------+--------------+       +----------v---------+
+| All the "webby" files in:  |       |                    |
+| ~/go/src/github.com/webby/*|       | Scratch Container  |
+|                            |       |                    |
++----------------------------+       +--------------------+
+   Your working web server!            A scratch container
+                                      is empty (zero bytes!)
+
+Create a Dockerfile named scratch. Convention would dictate that you should name it Dockerfile, but you refuse to conform to that naming convention.
+
+student@bchd:~/go/src/github.com/webby$ vim scratch
+
+#filename
+FROM scratch
+
+#name of the binary (image)
+ADD webserver /
+
+#add a directory
+ADD deploy /deploy/
+
+#there can only be one CMD in a dockerfile
+CMD ["/webserver"]
+
+# port that the container will listen on
+EXPOSE 8888
+
+sudo docker build -t webby -f scratch .
+
+   Run the scratch container
+                                             locally
++----------------------------+       +--------------------+
+| All the "webby" files in:  |       |                    |
+| ~/go/src/github.com/webby/*|       | Scratch Container  |
+|                            |       |                    |
++----------------------------+       +--------------------+
+   Your working web server!          http://172.16.1.4:8888/
+                                                ^
+                                                |
+                                                +
+                                             TESTING
+
+Application run
+Run the container. Forward traffic from local port 2224 to remote port 8888.
+sudo docker run -p 2224:8888 -it webby
+
+Test culr dans un autre screeen
+curl localhost:2224
+
+sudo docker ps -a
+sudo docker images
+docker --version
+
+39 Our next task is to upload this image that we made into a trusted (SSL) 
+Image Registry. This registry is called bchd.registry. 
+The following graphic will explain the process.
+
+ Upload your container to a registry that K8s trusts
+                        +---------------------+
+                        |                     |
++----------+   +--------+----------+   +------v-------+
+|  Local   |   | Scratch Container |   | bchd.registry|
+|  Webby   |   |  With Webby Files |   |   Registry   |
+|  Files   |   |      Loaded       |   |              |
++----------+   +-------------------+   +--------------+
+
+Now we can set up our own local docker registry. This is a handy little
+ trick if you want to work on developing images locally. Note that this
+  will not work with kubernetes, because you need to use https for kubernetes 
+  to trust the registry. The good news is, you will get to do that in a 
+  later lab. But for now, we can just easily build our own docker registry
+   playground.
+
+sudo docker run -d -p 2345:5000 registry:2
+
+Next we can "trick" our bchd machine into thinking that it is also
+ called bchd.registry by editing its host file
+
+sudo vim /etc/hosts
+
+127.0.0.1 localhost bchd.registry
+# <truncated>
+
+42 . Next, we can make sure that we never have to remember (or reference) the local port that is being served by adding a server to our nginx configuration
+
+sudo vim /etc/nginx/sites-enabled/reg
+
+server {
+    listen bchd.registry;
+    client_max_body_size 100M;
+    
+    location / {
+        proxy_pass http://127.0.0.1:2345;
+        }
+    }
+
+Now we will need to reload our nginx configuration.
+sudo nginx -s reload
+
+ag your new image with your last name. This will make the push unique so you will not be overwriting other student images. CAUTION: The command below needs to be modified, replacing the "lastname-webby" with your last name, a dash, and then the image name of webby. Example "feeser-webby"
+
+sudo docker tag webby bchd.registry/stgermains-webby
+
+Okay, now push your new image up to the bchd.registry registry
+sudo docker push bchd.registry/stgermains-webby
+
+sudo docker image ls
+--------------------------------------------------------
+Challenge 1: Create a container that runs the "Hello, world" test.
+--------------------------------------------------------
+cd ~/go/src/github.com/alta3/hello
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o welcome .
+
+vim scratch
+
+#filename
+FROM scratch
+
+#name of the binary (image)
+ADD welcome /
+
+#there can only be one CMD in a dockerfile
+CMD ["/welcome"]
+
+sudo docker build -t welcome -f scratch .
+sudo docker run -it welcome
+
+--------------------------------------------------------
+Challenge 2: Modify the webby container to serve on port 8385 rather than 8888.
+--------------------------------------------------------
+cd ~/go/src/github.com/webby
+vim scratch
+
+#filename
+ FROM scratch
+
+ #name of the binary (image)
+ ADD webserver /
+
+ #add a directory
+ ADD deploy /deploy/
+
+ #there can only be one CMD in a dockerfile
+ CMD ["/webserver"]
+
+ # port that the container will listen on
+ EXPOSE 8385
+
+ Now edit the application to listen on 8385, as opposed to 8888. 
+ The file to edit is go/src/github.com/webby/webpage.go. 
+ Edit the line, http.ListenAndServe(":8888", Log(http.DefaultServeMux)) 
+ to listen not on 8888, but on 8385
+
+sudo docker build -t webby -f scratch .
+
+sudo docker run -p 2224:8385 -it webby
+
+

@@ -13,3 +13,11 @@ Alta3 Research YouTube: https://www.youtube.com/user/Alta3Research/videos
 
 sylvain.st-germain@canada.ca
 Sylvain
+
+LAB2
+Further Reading: What are containers?
+According to docker: https://www.docker.com/what-docker
+Another Docker Blog: https://www.docker.com/what-container
+According to Amazon: https://aws.amazon.com/what-are-containers/
+Wikipedia: https://en.wikipedia.org/wiki/Docker_(software)
+According to techcrunch: https://techcrunch.com/2016/10/16/wtf-is-a-container/

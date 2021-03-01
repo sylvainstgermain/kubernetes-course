@@ -88,3 +88,35 @@ Applications
 
 
     Microservices
+        Meme chose que containers
+        Data storage is isolated from containers
+        Because it's not share can use different language for many containers
+        Extremely agile
+        Scalable
+
+Container
+    LXC 
+        Base des container
+    Docker
+        Met un layer sur LXC pour rendre plus facile
+        LXC plus un wrapper docker pour faciliter l'utilisation
+
+PODS 
+    Comment les containers peuvent parler ensemble ?
+    Peut avoir des adresse IP
+    Quel port est accessible sur ce Pod
+    Change les rles sur comment se connecter au container
+
+    ISOLATED : CSGROUP - Resource protection
+    POD : IPC - Quelle mémoire est partager, inter process commmunication
+    POD : Network - network, device stack, ports,
+    ISOLATED :Mount - mount point, map the directories 
+    ISOLATED :PID - Processes ID
+    ISOLATED :User -
+    POD : UTS - container able to share hostname and domainname
+
+Docker is just a wrapper on LXC !
+
+LAB 1 - Docker container + Image
+docker stop $(sudo docker ps -aq)
+sudo docker stop $(sudo docker ps -aq)
