@@ -1,0 +1,58 @@
+-------------------------------------------------------------------
+Course Dates: Monday, March 1 to Friday, March 5, 2021
+Course Times: 10:00 a.m. to 6:00 p.m. EST
+Meeting link:
+https://alta3researchinc.my.webex.com/alta3researchinc.my/j.php?MTID=m4b9a1e2b92c12e58fa1e63ef017e9e0b
+Meeting number: 182 746 4400
+Password: UkMK5jNik84 (85655564 from phones and video systems)
+
+Digital copies of the course materials will be provided by your instructor during class. 
+Please be prepared to access your online course materials with either the Chrome or Edge browser.
+ You can test your connectivity to the lab environment by going to live.alta3.com. 
+ If you see a "Welcome to Alta3 - EAS" message, you have successfully connected.
+
+--------------------------------------------------------------------
+https://live.alta3.com/groups/cheerful-crickets-burst/dashboard
+
+https://tmuxcheatsheet.com/
+TMUX    : SHELL - Personal shell 
+          split screen
+          ctrl b | shift "   # Horizontal
+          ctrl b | shift 5   # Vertical
+          ctrl b | Arrow     # Change screen
+          ctrl b | [         # scroll up  quit ->   q
+
+TTY     : Rescue command line,
+AUX1    : Take the place of localhost browser
+AUX2    : Take the place of localhost browser
+FiLES   : Autoindex page - Fichiers dans le répertoire static 
+           student@bchd:~/static$ 
+
+Microservice ?
+Microservice architecture ?
+
+-------------------------------------
+Container 
+-------------------------------------
+* Put the application in isolation
+* Lightweight
+* Portable - self contained
+* Kubernetes is a service on top of tmuxcheatsheet
+
+-------------------------------------
+Kubernetes
+-------------------------------------
+* External load balancer
+* Cluster
+    Master nodes    
+    Worker node
+* POds
+    Wrapper
+    Docker containers
+    Docker registery
+    Pod manifest (YAML)
+
+Minimum - 1 node (ok for practice but not ops)
+Maximum - 5000 nodes
+
+

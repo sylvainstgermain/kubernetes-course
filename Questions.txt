@@ -1,0 +1,20 @@
+-----------------------------------
+DAY 1
+-----------------------------------
+• Kubernetes enables a microservice architecture... which means what, exactly?
+"• What essential role do these Kubernetes cluster components have to play?
+ -master
+   -scheduler
+   -etcd
+   -API server
+   -controller manager
+ -worker nodes
+   -kubelet
+   -docker
+ -kubectl"
+• What is the value in using namespaces in a cluster?
+• What three parameters are set by a context? How could having multiple contexts be useful?
+"• What blueprint is used to create resources in a cluster, and what language is used to write it? 
+BONUS: What other language can you use?"
+• What are some of the more useful kubectl commands you picked up today?
+• What is port forwarding, and how is it useful?
