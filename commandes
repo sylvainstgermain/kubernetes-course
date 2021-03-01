@@ -8,7 +8,18 @@ ok: [node-3]
 ------------------------------------------
 Kubectl
 ------------------------------------------
-kubectl get -h
+# GET
+kubectl get
+kubectl get pods -n kube-system
+kubectl get pods -n kube-system -o wide  # very useful
+kubectl get services --sort-by=.metadata.name
+
+kubectl get services --sort-by=.spec.containers[0].ports[0].protocol
+kubectl get pods --sort-by=
+
+
+# DESCRIBE
+kubectl describe
 
 
 --------------------------------------------
@@ -33,6 +44,8 @@ coredns-5d65dd49c8-859m2                   1/1     Running   0          81m
 coredns-5d65dd49c8-fz798                   1/1     Running   0          81m
 
 kubectl get pods
+kubectl get pods -n default
+kubectl get pods -n kube-system
 kubectl apply -f my_first_pod.yaml
 kubectl describe pod myfirstpod
 kubectl create -f object.yml
@@ -41,10 +54,13 @@ kubeclt apply  # never better recreate
 kubectl edit myfirstpod
 kubectl delete pods --all
 
+
 -------------------------------------------
 NAMESPACES
 -------------------------------------------
 kubectl get ns 
+kubectl get namespaces
+kubectl get pods --all-namespaces
 
 default           Active   95m #
 kube-node-lease   Active   95m # not use
@@ -53,8 +69,9 @@ kube-system       Active   95m # Admin
 
 
 kubectl create ns prod
+kubectl create namespaces prod
+
 kubectl create ns dev
-kubectl get pods --all-namespaces
 
 kubectl create -f test-ns.yaml
 kubectl get namespaces
@@ -63,8 +80,70 @@ kubectl create -f test-rq.yaml --namespace=test
 kubectl describe namespace test
 kubectl get namespaces
 
+-----------------------------------------
+CONTEXT
+-----------------------------------------
 
+kubectl config view
 
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://127.0.0.1:6443
+  name: kubernetes-the-alta3-way
+contexts:
+- context:
+    cluster: kubernetes-the-alta3-way
+    user: admin
+  name: kubernetes-the-alta3-way
+current-context: kubernetes-the-alta3-way
+kind: Config
+preferences: {}
+users: 
+- name: admin
+  user:
+    client-certificate: /home/student/k8s-certs/admin.pem
+    client-key: /home/student/k8s-certs/admin-key.pem
+
+kubectl config view
+kubectl config set-context kubernetes-the-alta3-way --namespace=dev
+kubectl config view
+kubectl config set-context kubernetes-the-alta3-way --namespace=default
+kubectl config use-context dev
+
+cd ~
+kubectl config set-context dev-context --namespace=dev
+kubectl config use-context dev-context
+kubectl config view --minify
+kubectl config set-context dev-context --namespace=dev --user=admin --cluster=kubernetes-the-alta3-way
+kubectl config view
+
+kubectl config get-contexts
+
+kubectl config set-context kubernetes-the-alta3-way --namespace=default
+
+kubectl config set-context prod-context --namespace=prod --user=admin --cluster=kubernetes-the-alta3-way
+kubectl config set-context test-context --namespace=test --user=admin --cluster=kubernetes-the-alta3-way
+
+kubectl config get-contexts
+
+kubectl config view
+
+kubectl config use-context kubernetes-the-alta3-way
+
+CURRENT   NAME                       CLUSTER                    AUTHINFO   NAMESPACE
+          dev-context                kubernetes-the-alta3-way   admin      dev
+*         kubernetes-the-alta3-way   kubernetes-the-alta3-way   admin      default
+          prod-context               kubernetes-the-alta3-way   admin      prod
+          test-context               kubernetes-the-alta3-way   admin      test
+
+kubectl config get-contexts
+
+kubectl config use-context dev-context
+kubectl config use-context prod-context
+kubectl config use-context test-context
+kubectl config use-context kubernetes-the-alta3-way
 
 
 ------------------------------------------

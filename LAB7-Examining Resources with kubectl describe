@@ -1,0 +1,65 @@
+kubectl config get-contexts
+
+kubectl config use-context kubernetes-the-alta3-way
+
+kubectl run --port=8888 --requests='cpu=100m,memory=256Mi'  --image=bchd.registry/alta3-webby webweb
+hd.registry/alta3-webby webweb
+
+kubectl get pod
+kubectl describe pod webweb
+kubectl port-forward webweb 2224:8888 --address 0.0.0.0
+
+
+---
+apiVersion: apps/v1   # kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/
+kind: Deployment  # kubernetes resource to make
+metadata:
+  name: webweb     # metadata.name the "human name" to apply
+  labels:         # metadata.labels are interactive tools for organization
+   app: webweb     # label key:pair (label for the deployment)
+spec:             # the state to achive
+  selector:     
+    matchLabels:  # matches the pod being built
+      app: webweb
+  replicas: 3     # number of replicated pods to have
+  template:       # how to build our pod
+    metadata:   
+      labels:     # label for the pod
+        app: webweb
+    spec:         # how to build the CONTINERS within the pod
+      containers:
+      - name: webweb      # build one container name webweb
+        image: bchd.registry/alta3-webby     # REPLACE "888-sam" with the name of your image you created!!
+        ports:
+        - containerPort: 8888   # port container is listening on
+
+kubectl apply -f webweb-deploy.yaml
+
+kubectl get deployments
+kubectl describe deployments webweb
+
+kubectl get pods
+student@bchd:~$ kubectl get pods
+NAME                      READY   STATUS    RESTARTS   AGE
+webweb                    1/1     Running   0          6m11s
+webweb-797d95fcd8-h6qqs   1/1     Running   0          2m6s
+webweb-797d95fcd8-t45ws   1/1     Running   0          2m7s
+webweb-797d95fcd8-tpcp9   1/1     Running   0          2m6s
+
+kubectl get deployments
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+webweb   3/3     3            3           3m2s
+
+kubectl delete pod webweb
+kubectl get services
+kubectl describe services
+kubectl get pods
+kubectl describe pods
+kubectl describe nodes
+kubectl describe nodes node-1
+
+kubectl delete deployment webweb
+kubectl describe secrets
+kubectl describe all --all-namespaces
+kubectl get all --all-namespaces
+kubectl describe service -n kube-system

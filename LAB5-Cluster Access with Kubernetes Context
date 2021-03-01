@@ -1,0 +1,62 @@
+kubectl config use-context kubernetes-the-alta3-way
+
+Contexts are stored in file, ~/.kube/config
+
+kubectl config view
+
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://127.0.0.1:6443
+  name: kubernetes-the-alta3-way
+contexts:
+- context:
+    cluster: kubernetes-the-alta3-way
+    namespace: default
+    user: admin
+  name: kubernetes-the-alta3-way
+current-context: kubernetes-the-alta3-way
+kind: Config
+preferences: {}
+users:
+- name: admin
+  user:
+    client-certificate: /home/student/k8s-certs/admin.pem
+    client-key: /home/student/k8s-certs/admin-key.pem
+
+cd /home/student/k8s-certs/
+ls -l
+
+cd ~
+kubectl config set-context dev-context --namespace=dev
+kubectl config use-context dev-context
+kubectl config view --minify
+kubectl config set-context dev-context --namespace=dev --user=admin --cluster=kubernetes-the-alta3-way
+kubectl config view
+
+kubectl config get-contexts
+
+kubectl config set-context kubernetes-the-alta3-way --namespace=default
+
+kubectl config set-context prod-context --namespace=prod --user=admin --cluster=kubernetes-the-alta3-way
+kubectl config set-context test-context --namespace=test --user=admin --cluster=kubernetes-the-alta3-way
+
+kubectl config get-contexts
+
+kubectl config view
+
+kubectl config use-context kubernetes-the-alta3-way
+
+CURRENT   NAME                       CLUSTER                    AUTHINFO   NAMESPACE
+          dev-context                kubernetes-the-alta3-way   admin      dev
+*         kubernetes-the-alta3-way   kubernetes-the-alta3-way   admin      default
+          prod-context               kubernetes-the-alta3-way   admin      prod
+          test-context               kubernetes-the-alta3-way   admin      test
+
+kubectl config use-context dev-context
+kubectl config use-context prod-context
+kubectl config use-context test-context
+kubectl config use-context kubernetes-the-alta3-way
+
+
