@@ -21,3 +21,6 @@ Another Docker Blog: https://www.docker.com/what-container
 According to Amazon: https://aws.amazon.com/what-are-containers/
 Wikipedia: https://en.wikipedia.org/wiki/Docker_(software)
 According to techcrunch: https://techcrunch.com/2016/10/16/wtf-is-a-container/
+
+
+https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#create

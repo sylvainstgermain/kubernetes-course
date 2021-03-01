@@ -1,0 +1,56 @@
+clear
+cd ~
+kubectl get namespaces
+kubectl describe namespace default
+
+wget https://labs.alta3.com/courses/k8s/test-ns.yaml -O ~/test-ns.yaml
+cat ~/test-ns.yaml
+kubectl create -f test-ns.yaml
+kubectl get namespaces
+kubectl describe namespace test
+
+
+#prod
+cat ~/prod-ns.yaml
+apiVersion: v1      # from kubernetes.io/docs
+kind: Namespace     # type of resource to be created
+metadata:
+  name: prod        # name to associate with this namespace
+
+kubectl apply -f ~/prod-ns.yaml
+cat ~/prod-rq.yaml
+kubectl create -f ~/prod-rq.yaml --namespace=prod
+kubectl describe namespace dev prod
+
+#dev
+cat ~/dev-ns.yaml
+---
+apiVersion: v1      # from kubernetes.io/docs
+kind: Namespace     # type of resource to be created
+metadata:
+  name: dev         # name to associate with this namespace
+
+kubectl apply -f ~/dev-ns.yaml
+cat ~/dev-rq.yaml
+kubectl create -f ~/dev-rq.yaml --namespace=dev
+
+# test
+cat ~/test-ns.yaml
+apiVersion: v1    # from kubernetes.io/docs
+kind: Namespace   # type of resource to be created
+metadata:
+  name: test      # name to associate with this namespace
+
+kubectl create -f test-ns.yaml
+kubectl get namespaces
+kubectl describe namespace test
+kubectl create -f test-rq.yaml --namespace=test
+kubectl describe namespace test
+kubectl get namespaces
+
+# delete
+kubectl delete -f test-rq.yaml --namespace=test
+kubectl delete -f dev-rq.yaml --namespace=dev
+kubectl delete -f prod-rq.yaml --namespace=prod
+kubectl describe namespace test dev prod
+kubectl get namespaces

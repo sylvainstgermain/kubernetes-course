@@ -183,5 +183,13 @@ kube-proxy : pas d,info tout de suite
     C'est sur tous les noeuds
     Essentiel pour renforcer le rles pour le traffic reseau entre les containers
 
+--------------------------
+namespaces
+--------------------------
+Les namespace permettre de segmenter les ressources
+More precise
+
+
+LAB 4
 
 

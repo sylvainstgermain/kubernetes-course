@@ -8,19 +8,76 @@ ok: [node-3]
 ------------------------------------------
 Kubectl
 ------------------------------------------
-# nodes
 kubectl get -h
+
+
+--------------------------------------------
+NODES
+--------------------------------------------
 kubectl get nodes
 fping -A master-1 master-2 master-3 node-1 node-2 node-3
 kubectl describe nodes
 
-# pods
+-------------------------------------------
+PODS
+-------------------------------------------
+PODS to the kubernetes system
+kubectl get pods -n kube-system
+student@bchd:~$ kubectl get pods -n kube-system
+NAME                                       READY   STATUS    RESTARTS   AGE
+calico-kube-controllers-7798c85854-kh79p   1/1     Running   0          81m
+calico-node-77bj4                          1/1     Running   0          81m
+calico-node-xdjhf                          1/1     Running   0          81m
+calico-node-z6lbl                          1/1     Running   0          81m
+coredns-5d65dd49c8-859m2                   1/1     Running   0          81m
+coredns-5d65dd49c8-fz798                   1/1     Running   0          81m
+
 kubectl get pods
 kubectl apply -f my_first_pod.yaml
-kubectl get pods
+kubectl describe pod myfirstpod
+kubectl create -f object.yml
+kubectl delete 
+kubeclt apply  # never better recreate 
+kubectl edit myfirstpod
+kubectl delete pods --all
+
+-------------------------------------------
+NAMESPACES
+-------------------------------------------
+kubectl get ns 
+
+default           Active   95m #
+kube-node-lease   Active   95m # not use
+kube-public       Active   95m # Git HUB
+kube-system       Active   95m # Admin
+
+
+kubectl create ns prod
+kubectl create ns dev
+kubectl get pods --all-namespaces
+
+kubectl create -f test-ns.yaml
+kubectl get namespaces
+kubectl describe namespace test
+kubectl create -f test-rq.yaml --namespace=test
+kubectl describe namespace test
+kubectl get namespaces
+
+
+
+
 
 ------------------------------------------
 Docker
 ------------------------------------------
 sudo docker image ls
 sudo docker ps -a
+sudo docker run -p 2224:8888 -it webby
+sudo docker ps -a
+sudo docker images
+docker --version
+sudo docker run -d -p 2345:5000 registry:2
+sudo docker tag webby bchd.registry/stgermains-webby
+sudo docker push bchd.registry/stgermains-webby
+sudo docker build -t welcome -f scratch .
+sudo docker run -it welcome
