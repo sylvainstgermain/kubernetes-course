@@ -36,7 +36,38 @@ nginx     1/1       Running   1          1m
 Looks like nginx does not have a key for the value app. Let's apply a new label 
 to nginx. We'll assign the key app the value of web_service.
 
+ # create label
 kubectl label pods nginx app=web_service
+
+# 10.look label 
+kubectl get pods -L app
+
+# create yaml
+kubectl get pod nginx -o yaml > nginx-pod-update.yaml
+
+vim nginx-pod-update.yaml
+
+...
+metadata:
+  name: nginx
+  labels:
+    app: web_service
+    importance: critical
+    customer: internal_use
+...
+
+#Now apply the configuration change to your pod.
+kubectl apply -f nginx-pod-update.yaml
+
+#Once again, get the labels on every pod.
+kubectl get pods --show-labels --all-namespaces
+
+#Get the label value of all pods with label key app
+kubectl get pods -L app
+
+
+
+
 
 
 

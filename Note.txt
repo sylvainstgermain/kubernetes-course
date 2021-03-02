@@ -331,3 +331,5 @@ matchExpression:
   - { key: app, operator: IN, values: [alpaca,flamico]}
 
   match app: alpaca ou app: flamico
+
+  Annotation is similar but fundamentaly different

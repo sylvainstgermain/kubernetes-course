@@ -83,6 +83,10 @@ kubectl get pods -L app
 # debug
 kubectl describe pod <POD NAME>
 
+# extrire un manifest d'un pod
+kubectl get pod POD -o yaml > manifest.yaml
+kubectl apply -f manifest.yaml
+
 -------------------------------------------
 NAMESPACES
 -------------------------------------------
@@ -188,3 +192,5 @@ sudo docker tag webby bchd.registry/stgermains-webby
 sudo docker push bchd.registry/stgermains-webby
 sudo docker build -t welcome -f scratch .
 sudo docker run -it welcome
+
+

@@ -26,6 +26,9 @@ nginx   1/1     Running   0          8m52s
 READY       : Combien de pods READY
 RESTARTS    : Est-ce que le pod repart souvent ? Problème
 
+debug
+kubectl describe pod nginx
+
 
 
 
