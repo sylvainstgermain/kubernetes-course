@@ -199,3 +199,18 @@ TEMPLATES important
 ----------------------------
 
 
+Pourquoi le kube-system à ces PODS ?
+
+Pourquoi 3 calico ?
+nombre de worker node
+Controller par un daemonset , s'assure qu'un pod est sur tous les nodes
+Les callico pod ont les IP Adresse
+calico c'est un third party apllication
+Est fait pour la comunication, networking plugin
+
+Un truc aleatoire -> replica
+
+Pourquoi 2 coredns ?
+deux trrucs aleatoire deployment
+Controlled by replica set
+Pods that need to be alive are in deployment se recreer automatique
