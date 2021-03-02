@@ -409,6 +409,37 @@ a replicaset manifest
 * Can also track change, versionning
 * rollback !
 * Keep track of 10 unique revision (can be tweak)
-kubectl create -f objets-cours/sise-deployment.yaml
+
+kubectl get pods -o wide
+kubectl apply -f objets-cours/sise-deployment.yaml
+kubectl get pods -o wide
+kubectl delete -f objets-cours/sise-deployment.yaml
+
+kubectl describe 
+
+OPTINNAL SECTION 
+Section "strategy" est important pour les rollback versionning
+https://blog.container-solutions.com/kubernetes-deployment-strategies
+
+recreate : create downtime
+
+RollingUpdate : production
+maxSurge: 1 #start creating new pods ex 1 one more pods
+maxUnavailable : 1 # Rolling create a new pod et delete a old pod
+
+...
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2        # how many pods we can add at a time
+      maxUnavailable: 0  # maxUnavailable define how many pods can be unavailable
+                         # during the rolling update
+...	
+
+spec:
+  minReadySeconds : 60 #  wait 60 secons
+  progressDeadlineSeconds : 600 # Trigger a rollback if it fails
 
 
