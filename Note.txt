@@ -200,6 +200,14 @@ TEMPLATES important
 
 
 Pourquoi le kube-system à ces PODS ?
+kubectl get pods -n kube-system
+NAME                                       READY   STATUS    RESTARTS   AGE
+calico-kube-controllers-7798c85854-kh79p   1/1     Running   0          20h
+calico-node-77bj4                          1/1     Running   0          20h
+calico-node-xdjhf                          1/1     Running   0          20h
+calico-node-z6lbl                          1/1     Running   0          20h
+coredns-5d65dd49c8-859m2                   1/1     Running   0          20h
+coredns-5d65dd49c8-fz798                   1/1     Running   0          20h
 
 Pourquoi 3 calico ?
 nombre de worker node
@@ -208,9 +216,38 @@ Les callico pod ont les IP Adresse
 calico c'est un third party apllication
 Est fait pour la comunication, networking plugin
 
-Un truc aleatoire -> replica
-
+Un truc aleatoire -> replica -> calico-node-77bj4  
+kubectl describe calico-node-77bj4 
 Pourquoi 2 coredns ?
-deux trrucs aleatoire deployment
+deux trrucs aleatoire deployment -> coredns-5d65dd49c8-859m2
 Controlled by replica set
 Pods that need to be alive are in deployment se recreer automatique
+
+Replicasets
+Standalon pods alone -> Bad "outside deployment"
+
+ReplicaSet est la raison de l'implentation, maintient un set de replicas
+
+kind: ReplicaSet
+spec:
+  replicas: 3
+
+Facile d'etre scalable la nuit replicas: 8 et le jour replicas: 3
+
+If it's broke don't fix it, recreate it ! Pods don't like change
+ReplicaSet don't like change
+Deployment -> Makes ReplicaSet
+
+Deployement -> ReplicaSet -> Pods
+            > New ReplicaSet > diff pods
+
+NEVER use ReplicaSet use Deplyemnet as kind
+Calico -> DaemonSet > Pods on each node
+
+There are not load balancer they are load balancer
+
+Calico DaemonSet ?
+Deployemnet -> ReplicaSet don't care about the node but DaemonSet does care
+important for Calico.
+
+etcd : is backup by the 3 masters, replication, updated at all times
