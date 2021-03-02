@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata: # replicaset level
-  name: simpleservice-DAEMON
+  name: simpleservice
 spec:
   selector:
     matchLabels:
