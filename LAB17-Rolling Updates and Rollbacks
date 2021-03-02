@@ -65,4 +65,111 @@ REVISION  CHANGE-CAUSE
 
 Check in the container
 kubectl exec -it zombie-dc59bf87c-4hl5t -- bash
+nginx -v
+ginx version: nginx/1.19.6
+root@zombie-dc59bf87c-4hl5t:/# 
+
+edit the zombie deployment file:
+latest version
+
+Now apply that change and see what the below pane shows 
+as your rollout is taking effect. This time we'll include 
+the --record flag which should auto update our CHANGE-CAUSE field.
+
+kubectl apply -f objets-cours/zombie.yaml --record
+
+kubectl rollout history deploy zombie
+deployment.apps/zombie
+REVISION  CHANGE-CAUSE
+1         deployed ver. 1.18.0
+2         ver. 1.19.6
+3         kubectl apply --filename=zombie.yaml --record=true
+
+kubectl annotate deployment zombie kubernetes.io/change-cause="deployed latest stable release"
+
+kubectl rollout history deploy zombie
+deployment.apps/zombie 
+REVISION  CHANGE-CAUSE
+1         deployed ver. 1.18.0
+2         ver. 1.19.6
+3         deployed latest stable release
+
+----------------------
+ROLLBACKS
+----------------------
+# get info on rollback 1
+kubectl rollout history deploy zombie --revision=1
+
+kubectl rollout history deploy zombie --revision=2
+
+#Check the status of the rollouts.
+kubectl rollout status deploy zombie
+deployment "zombie" successfully rolled out
+
+#Now attempt to undo a rollout via a rollback. The 'undo' command undoes the most recent update.
+kubectl rollout undo deploy/zombie
+
+kubectl rollout status deploy zombie
+deployment "zombie" successfully rolled out
+
+kubectl get pods
+
+# check pods
+kubectl exec -it zombie-dc59bf87c-2mbbj -- bash
+nginx -v
+nginx version: nginx/1.19.6
+
+kubectl rollout status deploy zombie
+
+Kubernetes always increases the REVISION value, but notice that the CHANGE-CAUSE was 'moved' to this new revision! Cool! Taking a little extra time to organize ourselves is REALLY paying off!!
+kubectl rollout history deploy zombie
+deployment.apps/zombie 
+REVISION  CHANGE-CAUSE
+1         deployed ver. 1.18.0
+3         deployed latest stable release
+4         ver. 1.19.6
+
+CHALLENGE 01 (OPTIONAL) - To rollback to a specific revision on "zombie", you would issue kubectl rollout undo deploy/zombie --to-revision=n, where 'n' is the revision you wish to select. Try to rollback to the oldest revision listed available to you.
+kubectl rollout undo deploy/zombie --to-revision=1
+
+kubectl rollout history deploy zombie
+deployment.apps/zombie 
+REVISION  CHANGE-CAUSE
+3         deployed latest stable release
+4         ver. 1.19.6
+5         deployed ver. 1.18.0
+
+# delete deployment
+kubectl delete deploy zombie
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
