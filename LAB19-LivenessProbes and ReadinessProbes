@@ -100,9 +100,20 @@ kubectl get nodes -o json | jq '.items[] | { status: .status.conditions[] | sele
 his one in particular will cause k8s to send HTTP GET messages every 5 seconds to http:<POD-IP>:9876/health. Create the following manifest that will make use of our simpleservice image.
 --------------------------------------------------
 kubectl apply -f objets-cours/sise-lp.yaml
+kubectl get pods
 
+kubectl describe pods sise-lp | grep -i health
+Liveness:       http-get http://:9876/health delay=2s timeout=1s period=5s #success=1 #failure=3
 
+or
+kubectl port-forward sise-lp 2224:9876 --address=0.0.0.0
 
+curl localhost:2224/health
+{"healthy": true}
+
+Before moving further, reivew https://github.com/mhausenblas/simpleservice. Pay special attention to the section that reads as follows, 'HEALTH_MIN and HEALTH_MAX ... the min. and max. delay in milliseconds that the /health endpoint responds'
+
+Also, take a look at the k8s documentation for liveness and readiness probes. This link has all of the settings available: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes.
 
 
 
