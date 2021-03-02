@@ -486,3 +486,40 @@ Readiness probe
 Can do bothe readines + livenessProbe
 https://alta3researchinc.my.webex.com/alta3researchinc.my-fr/url.php?frompanel=false&gourl=https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle
 
+-------------------------------------
+Minimu require resource
+-------------------------------------
+add a resources and request section
+
+define container by containers 
+
+...
+resources: # minimum required
+  requests: 
+    memory: "64Mb"
+    cpu: "250"
+limits: # max required
+  memory: "128Mb"
+  cpu: "500m"
+..
+
+production -> No limit !!! no resource quota
+dev        -> must be limited
+
+resource quota : setting a hard limit in a namespace
+
+CPU -- Compressible
+Mem -- non Compressible
+
+Eviction - a pod is ejected because the resource is not sufficient
+
+YOu don't see request and limit on container to date.
+resource quota affect namspace !
+
+In a container to define request and limit
+
+kubectl describe ns
+
+LimitRange object est un objet comme resourceQuta
+
+Alternative to resource quota
