@@ -363,3 +363,23 @@ Replicaset
 ------------------------------------
 Load balancer ?
 ENvoy est utilisé dans le cluster du prof
+
+------------------------------------
+Daemon set
+------------------------------------
+Comment le cscheduler works ?
+Cluster à 3 noeuds, le scheduler decide 
+ou mettre les PODS et où il vont. Il utilise une 
+technique de round-robin pour déterminer ou le pod va aller
+
+Round-robbin faire le tour des noeud :
+  - POD1 : Node 1, est-ce qu'il y a assez de resource sur ce node ? ok
+  - POD2 : maintenant commence avec node 2, assez de resource ? Ok il y va
+           node il va au  node 3, si 3 dit ok on le met là.
+  - POD 3 : Demande au node 1 ok et va sur node 1
+
+  Tant que les 3 pods sont faite c,est ok !
+
+  Un daemonset est très différent, il doit avoir un POD sur chaque noeud et
+  si pas assez de resource sur un noeud il y a un problème !!!
+  
