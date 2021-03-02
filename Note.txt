@@ -398,3 +398,17 @@ git pull
 kubectl create -f objets-cours/sise-ds.yaml
 kubectl get pods -o wide
 kubectl delete -f objets-cours/sise-ds.yaml
+
+------------------------------------
+Deployment
+------------------------------------
+kind and api version is the only difference between
+a replicaset manifest
+
+* expect to be change, wraper over pods
+* Can also track change, versionning
+* rollback !
+* Keep track of 10 unique revision (can be tweak)
+kubectl create -f objets-cours/sise-deployment.yaml
+
+
