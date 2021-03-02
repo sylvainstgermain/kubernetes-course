@@ -40,6 +40,13 @@ kubectl scale deployment webservice --replicas=2
 kubectl get pods -w
 kubectl scale deployment webservice --replicas=2
 
+...
+spec:
+  replicas: 4
+...
+kubectl apply -f objets-cours/webby-deploy.yaml
+
+
 
 
 
