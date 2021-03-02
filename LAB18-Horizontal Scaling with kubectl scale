@@ -4,20 +4,27 @@ https://medium.com/bitnami-perspectives/imperative-declarative-and-a-few-kubectl
 https://kubernetes.io/docs/concepts/overview/object-management-kubectl/declarative-config/
 https://kubernetes.i
 
-kubectl apply -f objets-cours/zombie.yaml
+#Create the deployment now. The option --save-config will prevent a warning later when we go to apply changes. 
+kubectl create -f objets-cours/sise-deploy.yaml --save-config
 
+kubectl describe deployments sise-deploy | grep Replicas
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+  Available      True    MinimumReplicasAvailable
 
+kubectl get pods | grep sise
+sise-deploy-7566bd957d-d5wbv   1/1     Running   0          61s
+sise-deploy-7566bd957d-ggj6t   1/1     Running   0          61s
 
+#Scale out the number of replicas for the sise pod.
+kubectl scale deployment sise-deploy --replicas=3
 
+kubectl get pods | grep sise
 
+kubectl describe deployments sise-deploy
 
-
-
-
-
-
-
-
+-----------------------------------------
+Declarative Scaling with kubectl apply
+-----------------------------------------
 
 
 
