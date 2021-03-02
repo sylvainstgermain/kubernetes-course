@@ -37,11 +37,15 @@ kubectl create -f https://static.alta3.com/projects/k8s/zombie.yaml
 
 #DELETE WITH LABEL "Now, just delete the entire deployment like this:"
 kubectl delete deploy -l app=nginx
+deployment.apps "zombie" deleted  
 
-
-
-
-
+Copy this deployment framework into your favorite editor.
+kubectl apply -f objets-cours/webby-deploy.yaml
+kubectl delete -f objets-cours/webby-deploy.yaml
+kubectl apply -f objets-cours/webby-deploy.yaml
+kubectl delete deployment webservice
+kubectl apply -f objets-cours/webby-deploy.yaml
+kubectl delete deployment -l app=webby
 
 
 
