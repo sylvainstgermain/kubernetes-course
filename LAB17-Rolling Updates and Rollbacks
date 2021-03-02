@@ -44,9 +44,25 @@ Exit the container
 exit
 
 Edit the zombie deployment file:
+NGINX version from 1.18.0 into 1.19.6.
 
+kubectl apply -f objets-cours/zombie.yaml
 
+kubectl rollout history deploy zombie
+deployment.apps/zombie 
+REVISION  CHANGE-CAUSE
+1         deployed ver. 1.18.0
+2         deployed ver. 1.18.0
 
+Manually set an annotation on the CHANGE-CAUSE field. NOTE: Setting this annotation could be part of an automated process
+kubectl annotate deployment zombie kubernetes.io/change-cause="ver. 1.19.6"
 
+kubectl rollout history deploy zombie
+deployment.apps/zombie 
+REVISION  CHANGE-CAUSE
+1         deployed ver. 1.18.0
+2         ver. 1.19.6
 
+Check in the container
+kubectl exec -it zombie-dc59bf87c-4hl5t -- bash
 
