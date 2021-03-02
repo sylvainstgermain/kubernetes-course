@@ -1,0 +1,242 @@
+-------------------------------
+Batir un container
+-------------------------------
+
+-------------------------------
+Creer une image docker
+-------------------------------
+
+-- Fichier Dockerfile
+vim scratch
+
+#filename
+FROM scratch
+
+#name of the binary (image)
+ADD webserver /
+
+#add a directory
+ADD deploy /deploy/
+
+#there can only be one CMD in a dockerfile
+CMD ["/webserver"]
+
+# port that the container will listen on
+EXPOSE 8888
+
+-- Build
+sudo docker build -t webby -f scratch .
+
+-- run
+sudo docker run -p 2224:8888 -it webby
+
+-- test
+-- Local port 2224 aux1, aux2 displays anything on port 2225
+curl localhost:2224
+
+sudo docker ps -a
+sudo docker images
+docker --version
+
+-------------------------------
+Upload image docker dans un registry
+-------------------------------
+ +------------>
+   Upload your container to a registry that K8s trusts
+                        +---------------------+
+                        |                     |
++----------+   +--------+----------+   +------v-------+
+|  Local   |   | Scratch Container |   | bchd.registry|
+|  Webby   |   |  With Webby Files |   |   Registry   |
+|  Files   |   |      Loaded       |   |              |
++----------+   +-------------------+   +--------------+
+
+sudo docker run -d -p 2345:5000 registry:2
+
+sudo vim /etc/hosts
+127.0.0.1 localhost bchd.registry
+
+#Next, we can make sure that we never have to remember
+# (or reference) the local port that is being served by adding 
+# a server to our nginx configuration.
+sudo vim /etc/nginx/sites-enabled/reg
+server {
+    listen bchd.registry;
+    client_max_body_size 100M;
+    
+    location / {
+        proxy_pass http://127.0.0.1:2345;
+        }
+    }
+
+
+sudo docker tag webby bchd.registry/stgermains-webby
+sudo docker push bchd.registry/stgermains-webby
+sudo docker image ls
+
+
+-------------------------------
+Batir un POD
+-------------------------------
+apiVersion: is a required key field. It defines the Kubernetes API you are using.
+kind: For this lab, the value field will be either Pod or Deployment.
+metadata: A required key that helps uniquely identify the object. Subkeys are name, uid, labels, and namespace.
+spec: Specifies the desired state of an object. If a spec is deleted, the object will be purged from the system.
+status: PURELY FYI - A system generated value that shows the actual state of the object at the current time.
+
+kind : kubectl api-resources
+
+vim my_first_pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myfirstpod
+spec:
+  containers:
+  - name: webster
+    image: bchd.registry/alta3-webby
+
+kubectl create -f my_first_pod.yaml
+kubectl get pods
+
+-------------------------------
+deployments
+-------------------------------
+vi ~/webweb-deploy.yaml
+
+---
+apiVersion: apps/v1   # kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/
+kind: Deployment  # kubernetes resource to make
+metadata:
+  name: webweb     # metadata.name the "human name" to apply
+  labels:         # metadata.labels are interactive tools for organization
+   app: webweb     # label key:pair (label for the deployment)
+spec:             # the state to achive
+  selector:     
+    matchLabels:  # matches the pod being built
+      app: webweb
+  replicas: 3     # number of replicated pods to have
+  template:       # how to build our pod
+    metadata:   
+      labels:     # label for the pod
+        app: webweb
+    spec:         # how to build the CONTINERS within the pod
+      containers:
+      - name: webweb      # build one container name webweb
+        image: bchd.registry/alta3-webby     # REPLACE "888-sam" with the name of your image you created!!
+        ports:
+        - containerPort: 8888   # port container is listening on
+
+kubectl apply -f webweb-deploy.yaml
+kubectl delete deployment webweb
+-------------------------------
+Batir un Namespace
+-------------------------------
+kubectl get namespaces
+kubectl describe namespace default
+
+vi ~/test-ns.yaml
+
+---
+apiVersion: v1    # from kubernetes.io/docs
+kind: Namespace   # type of resource to be created
+metadata:
+  name: test      # name to associate with this namespace
+
+kubectl create -f test-ns.yaml 
+kubectl get namespaces
+kubectl describe namespace test
+
+# quota
+vi test-rq.yaml
+
+---
+apiVersion: v1           # from kubernetes.io/docs
+kind: ResourceQuota      # kubernetes resource to be created
+metadata:
+  name: test-resourcequota  # name of ResourceQuota
+spec:
+  hard:                  # "may not exceed"
+    cpu: "1"             # 1 cpu is == 1 vcore on a hypervisor or 1 hyperthread on bare metal
+    memory: 1Gi          # 1 gig of memory
+
+kubectl create -f test-rq.yaml --namespace=test
+kubectl describe namespace test
+kubectl get namespaces
+
+# delete quota
+kubectl delete -f test-rq.yaml --namespace=test
+
+-------------------------------
+Ajouter un contexte
+-------------------------------
+kubectl config use-context kubernetes-the-alta3-way
+kubectl config view
+vi ~/.kube/config
+
+# clef pour utilisation de context
+cd ~/k8s-certs/
+
+kubectl config set-context dev-context --namespace=dev
+kubectl config use-context dev-context
+# only current context
+kubectl config view --minify
+
+kubectl config set-context dev-context --namespace=dev --user=admin --cluster=kubernetes-the-alta3-way
+kubectl config view
+
+# voir les contextes
+kubectl config get-contexts
+
+kubectl config set-context kubernetes-the-alta3-way --namespace=default
+
+
+-------------------------------
+Information sur PODS
+-------------------------------
+
+
+-------------------------------
+Information sur Container
+-------------------------------
+
+
+-------------------------------
+Information sur CLuster
+-------------------------------
+# GET
+kubectl config use-context kubernetes-the-alta3-way
+kubectl get all --all-namespaces
+kubectl get all --all-namespaces | grep calico-kube-controllers
+
+kubectl get services
+kubectl get services --all-namespaces
+kubectl get pods --all-namespaces
+kubectl get pods --all-namespaces -o wide
+kubectl get deployments
+kubectl get secrets
+
+# DESCRIBE
+kubectl config get-contexts
+kubectl config use-context kubernetes-the-alta3-way
+kubectl run --port=8888 --requests='cpu=100m,memory=256Mi'  --image=bchd.registry/alta3-webby webweb
+kubectl get pod
+kubectl describe pod webweb
+kubectl port-forward webweb 2224:8888 --address 0.0.0.0
+kubectl describe pod webweb | grep IP
+kubectl describe pod webweb| grep Controlled
+kubectl get pods
+kubectl get deployments
+kubectl describe deployments webweb
+kubectl delete pod webweb
+kubectl get services
+kubectl describe services
+kubectl describe pods
+kubectl describe nodes
+kubectl describe nodes node-1
+kubectl describe all --all-namespaces
+kubectl get all --all-namespaces
+kubectl describe service -n kube-system
+
+

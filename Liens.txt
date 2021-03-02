@@ -1,3 +1,6 @@
+
+
+https://nam04.safelinks.protection.outlook.com/?url=https%3A%2F%2Falta3researchinc.my.webex.com%2Falta3researchinc.my%2Fj.php%3FMTID%3Dm4b9a1e2b92c12e58fa1e63ef017e9e0b&data=04%7C01%7CPartnerEvents.Nam%40globalknowledge.com%7Ca46cd3011af74659c19408d8d75b8243%7Cdefa54f34877425b8965eb5fbfd108ce%7C0%7C1%7C637496135325722941%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&sdata=kDsyc%2BEO9UfjrThNd7qHEAu5yY6dZcVRGdcSqvljDxw%3D&reserved=0
 git clone git@github.com:sylvainstgermain/kubernetes-course.git
 
 https://www.cncf.io/certification/ckad/
@@ -24,3 +27,18 @@ According to techcrunch: https://techcrunch.com/2016/10/16/wtf-is-a-container/
 
 
 https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#create
+
+Kubectl Cheatsheet:
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+Kubectl communicates with Kubernetes API server (description of API server):
+https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md
+
+If the concept of Pods is confusing, check out the following documentation:
+https://kubernetes.io/docs/concepts/workloads/pods/pod/
+
+For assistance with writing manifests, here are some more resources for you to peruse through manifest examples:
+https://static.alta3.com/files/Manifests.pdf
+
+An extended pod manifest example:
+https://static.alta3.com/files/ExtendedManifest.pdf
