@@ -1,0 +1,44 @@
+
+kubectl config get-contexts
+kubectl config use-context kubernetes-the-alta3-way
+
+kubectl get deployments
+kubectl delete deployment <INSERT_DEPLOYMENT_NAME_HERE>
+
+Remember, a deployment is a higher-level concept than a "pod". 
+A deployment is asking Kubernetes to manage a pods, exposing 
+features like "rolling updates", "rollbacks", and "replicas".
+ In production, there is no doubt you'll use deployments. 
+ However, in testing (or when you're first learning), a more
+  basic level on off pod is sufficent
+
+
+kubectl get pods
+kubectl delete pod simpleservice
+kubectl get pods
+
+The following command will delete all pods and deployments in the current namespace. 
+It is a shortcut for the commands you just ran.
+
+kubectl delete pod,deploy --all
+
+# Create Ngnix
+kubectl apply -f https://static.alta3.com/projects/k8s/nginx-pod.yaml
+
+kubectl get pods --show-labels --all-namespaces
+
+# get version all pod of label app
+kubectl get pods -L app
+
+NAME      READY     STATUS    RESTARTS   AGE       APP
+nginx     1/1       Running   1          1m
+
+Looks like nginx does not have a key for the value app. Let's apply a new label 
+to nginx. We'll assign the key app the value of web_service.
+
+kubectl label pods nginx app=web_service
+
+
+
+
+

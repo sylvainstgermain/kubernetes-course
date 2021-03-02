@@ -250,4 +250,84 @@ Calico DaemonSet ?
 Deployemnet -> ReplicaSet don't care about the node but DaemonSet does care
 important for Calico.
 
-etcd : is backup by the 3 masters, replication, updated at all times
+etcd : is backup by the 3 masters, replication, updated at all Times
+
+-------------------------------
+Port forwarding 
+-------------------------------
+kubectl port-forward PODname LocalPort:ContainerPort
+kubectl port-forward nginx 2224:8080
+
+Container port : set in Stone in the definition see on dockerhub
+                 define by the image need to find it !!!
+
+port forward is the tool to bypass le expose, access without expose
+See a microservice run without putting it in production.
+
+Exemple 2 containers, quel container sera accéder ?
+webby -> 8888
+nginx -> 8080
+
+Si deux apps
+webby1 8888
+webby2 8888  port conflict
+
+Lab number 9
+POD has just 1 ip adresse
+
+------------------------------
+Create vs apply?
+------------------------------
+Imperative "create/delete"  |   Declarative "apply"
+Dramatic change                 tweakin some incremental
+
+Theoriquement on utilise seulement create ou apply, si on melanfge
+les deux c'est ok mais on a des warnings.
+
+Exec vs Attach ?
+https://github.com/kubernetes/kubernetes/issues/23335
+
+ex: Exec bash
+Have access to all process
+
+kubectl Attach
+attach in a process in the container
+
+Si un container il va direct sur le container si plus d,un container faire attention 
+de specifier le bon.
+
+First command toi debug a pod
+kubectl describe pod <POD NAME>
+
+--------------------------
+lABEL + Annotation
+--------------------------
+Group pods together, delete, change all that pods
+
+* In the manifest the label is under metadata
+* can have many labels
+
+kubectl label pods nginx
+kubectl get pods -l environment=production,tier=frontend
+kubectl get pods -l 'environment in (production),tier in (frontend)'
+kubectl get pods -l 'environment in (production, qa)'
+kubectl get pods -l 'environment,environment notin (frontend)'
+
+Dans le manifest on peut faire unselecteur
+ matchLabels ou matchexpression
+
+kind: Deployment
+metadata:
+spec:
+  selector:
+    matchLabels:
+     app: flaminco
+     appweb : moose 
+
+Utilise tous les pods qui match le label
+
+# a la place de matchLabels
+matchExpression:
+  - { key: app, operator: IN, values: [alpaca,flamico]}
+
+  match app: alpaca ou app: flamico

@@ -1,0 +1,41 @@
+
+kubectl config get-contexts
+kubectl config use-context kubernetes-the-alta3-way
+
+# creation du POD
+kubectl create -f https://static.alta3.com/projects/k8s/nginx-pod.yaml
+
+# Shell dans le pod
+kubectl exec -it nginx -- sh
+ls /proc/ | head
+kill -15 1
+
+# Voir les podd par le nom de restart
+kubectl get pods --all-namespaces --sort-by='.status.containerStatuses[0].restartCount'
+
+# efface le POD
+kubectl delete -f https://static.alta3.com/projects/k8s/nginx-pod.yaml
+
+# Confirmer qu'il est out
+kubectl get pods --all-namespaces --sort-by='.status.containerStatuses[0].restartCount'
+
+kubectl get pods
+NAME    READY   STATUS    RESTARTS   AGE
+nginx   1/1     Running   0          8m52s
+
+READY       : Combien de pods READY
+RESTARTS    : Est-ce que le pod repart souvent ? Problème
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -49,11 +49,39 @@ kubectl get pods -n kube-system
 kubectl apply -f my_first_pod.yaml
 kubectl describe pod myfirstpod
 kubectl create -f object.yml
+kubectl create -f https://static.alta3.com/projects/k8s/nginx-pod.yaml
 kubectl delete 
 kubeclt apply  # never better recreate 
 kubectl edit myfirstpod
 kubectl delete pods --all
 
+#shell
+                 
+# Fonctionne seulement s'il y a un container dans le pod nginx
+kubectl exec -it nginx date
+
+kubectl exec -it nginx -- sh
+
+# pods par nombre de restart
+kubectl get pods --all-namespaces --sort-by='.status.containerStatuses[0].restartCount'
+
+-- copy
+kubectl cp /pathtofile pod-name:/pathfile
+kubectl cp pod-name:/pathfile /pattofile
+
+# specifier le container webby 
+kubectl cp /pathtofile pod-name:/pathfile -c webby
+
+# assign/create label
+kubectl label pods nginx app=web_service
+
+# get version all pod of label app
+kubectl get pods -L app
+
+#Perform the following get command to get the running pod's manifest.
+
+# debug
+kubectl describe pod <POD NAME>
 
 -------------------------------------------
 NAMESPACES

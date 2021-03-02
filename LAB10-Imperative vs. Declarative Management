@@ -1,0 +1,4 @@
+create  - kubectl create -f <filename>.<yaml>
+Replace - kubectl replace -f <filename>.<yaml>
+Delete  - kubectl delete -f <filename>.<yaml>
+

@@ -33,24 +33,17 @@ kubectl api-resources
 
 https://hub.docker.com/r/mhausenblas/simpleservice/
 
-kubectl create -f simpleservice.yaml
+According to the README on the simpleservice GitHub repo, a number of API endpoints should be available. The issue is that this image and its APIs will be running in a container. That container will be in a Pod with a random IP address, on some Node that also has it's own IP address. However, if we want to cut straight to that Pod, we can.
 
-kubectl describe pod simpleservice
+n the new terminal, create a tunnel from your local machine to your pod.
+kubectl port-forward simpleservice 2224:9876 --address=0.0.0.0
 
-kubectl delete -f simpleservice.yaml
-
-kubectl describe pod webservice01
-
-kubectl delete -f webby-pod01.yaml
-
-CHALLENGE 01 (OPTIONAL) - Finish early? Repeat the exercise 
-by using the dev-context. You can select this context by running 
-kubectl config use-context dev-context. You can use the same 
-manifests when you repeat the lab.
-
-kubectl config use-context dev-context
-kubectl create -f objets-cours/simpleservice.yaml
-kubectl get pods
+n the window that is not running your port forward, try to curl one of 
+the simpleservice APIs from your terminal session.
+curl http://127.0.0.1:2224/env
+curl http://127.0.0.1:2224/health
+curl http://127.0.0.1:2224/endpoint0
+curl http://127.0.0.1:2224/info
 
 
 
