@@ -25,8 +25,12 @@ kubectl describe deployments sise-deploy
 -----------------------------------------
 Declarative Scaling with kubectl apply
 -----------------------------------------
+kubectl apply -f objets-cours/sise-deploy.yaml
 
+kubectl get rs | grep sise
 
+#Let's run through what we just did a second time, only now, replace the simpleservice image with the tagged version of the website (webby)
+vim webby-deploy.yaml
 
 
 
