@@ -394,3 +394,7 @@ nodeSelector :
   label
 nodeName: node-1
 
+git pull
+kubectl create -f objets-cours/sise-ds.yaml
+kubectl get pods -o wide
+kubectl delete -f objets-cours/sise-ds.yaml
