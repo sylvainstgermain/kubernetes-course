@@ -443,3 +443,10 @@ spec:
   progressDeadlineSeconds : 600 # Trigger a rollback if it fails
 
 
+Scale object at command line
+kubectl scale deploy nginx --replicas=4
+or
+in the manifest
+
+Auto scale !!!
+kubectl autoscale deploy nginx --min=2 --max=5 --cpu-percent=80
