@@ -450,3 +450,39 @@ in the manifest
 
 Auto scale !!!
 kubectl autoscale deploy nginx --min=2 --max=5 --cpu-percent=80
+
+---------------------------------------------------
+Probes - LivenessProbe + ReadinessProbes
+----------------------------------------------------
+* Report back on health of containers
+* Liveness probe fail -> it's dead , it will kill the container
+* Readiness -> container not ready yet -> block traffic to the container 
+* Careful in the implementation
+
+#Liveness
+    initialDelaySeconds: 2     # wait this long after restarting to do the first HTTP GET (default 0)
+      periodSeconds: 5         # how often to probe (default is 1)
+      timeoutSeconds: 1        # how long to wait until timeout occurs (default is 1)
+      successThreshold: 1      # min consecutive successes to be considered "up" after a fail (default 1)
+      failureThreshold: 3      # how many consecutive fails before pod is restarted (default 3)
+    
+
+method  check
+
+#1
+  httpGet:                 # send HTTP GET to :9876/health/ to a endpoint pas obliger health
+    path: /health
+    port: 9876
+
+#2
+  exec:
+    command:
+    - cat 
+    - /tmp/healthy
+
+Readiness probe
+    * on loading large data
+
+Can do bothe readines + livenessProbe
+https://alta3researchinc.my.webex.com/alta3researchinc.my-fr/url.php?frompanel=false&gourl=https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle
+

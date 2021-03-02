@@ -95,9 +95,11 @@ kubectl get nodes -o json | jq '.items[] | { status: .status.conditions[] | sele
   "name": "node-3"
 }
 
-
-
-
+--------------------------------------------------
+#Now it's time to work with a livenessProbe. 
+his one in particular will cause k8s to send HTTP GET messages every 5 seconds to http:<POD-IP>:9876/health. Create the following manifest that will make use of our simpleservice image.
+--------------------------------------------------
+kubectl apply -f objets-cours/sise-lp.yaml
 
 
 
