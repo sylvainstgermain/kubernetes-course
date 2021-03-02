@@ -43,6 +43,8 @@ nginx version: nginx/1.18.0
 Exit the container
 exit
 
+Edit the zombie deployment file:
+
 
 
 
