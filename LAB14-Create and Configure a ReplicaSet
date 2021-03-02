@@ -25,3 +25,89 @@ spec:
            - name: web
              containerPort: 9876
              protocol: TCP    
+
+# creation du replicaSet
+kubectl apply -f kubernetes-course/objets-cours/sise-rs.yaml
+replicaset.apps/simpleservice created
+
+#Next, let's see if the Pod's got created. We should see three pods here.
+kubectl get pods
+
+NAME                  READY   STATUS              RESTARTS   AGE
+nginx-annot           1/1     Running             0          26m
+simpleservice-mdm94   2/2     Running             0          32s
+simpleservice-wrc8k   2/2     Running             0          32s
+simpleservice-z26rq   0/2     ContainerCreating   0          32s
+
+#kubectl get rs
+
+NAME            DESIRED   CURRENT   READY   AGE
+simpleservice   3         3         2       63s
+
+#kubectl describe rs
+
+Name:         simpleservice
+Namespace:    default
+Selector:     app=simpleservice
+Labels:       <none>
+Annotations:  Replicas:  3 current / 3 desired
+Pods Status:  3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  app=simpleservice
+           version=1
+  Containers:
+   simpleservice:
+    Image:        nginx
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:       <none>
+   simpleservice-web:
+    Image:        mhausenblas/simpleservice:0.5.0
+    Port:         9876/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Events:
+  Type    Reason            Age   From                   Message
+  ----    ------            ----  ----                   -------
+  Normal  SuccessfulCreate  88s   replicaset-controller  Created pod: simpleservice-z26rq
+  Normal  SuccessfulCreate  88s   replicaset-controller  Created pod: simpleservice-mdm94
+  Normal  SuccessfulCreate  88s   replicaset-controller  Created pod: simpleservice-wrc8k
+
+
+#Remove the replica set. Remember, if you construct from a file, you can easily delete a resource by referencing the same file.
+kubectl delete -f kubernetes-course/objets-cours/sise-rs.yaml
+
+A ReplicaSet ensures that a specified number of pod replicas are 
+running at any given time. However, a Deployment is a higher-level
+ concept that manages ReplicaSets and provides declarative updates
+  to Pods along with a lot of other useful features. Therefore, we
+   recommend using Deployments instead of directly using 
+   ReplicaSets, unless you require custom update orchestration or 
+   don’t require updates at all. From here on out, we'll just make
+    deployments.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -333,3 +333,28 @@ matchExpression:
   match app: alpaca ou app: flamico
 
   Annotation is similar but fundamentaly different
+
+  -------------------------------------
+  Annotation :
+   - Information 
+   - instruction
+  --------------------------------------
+  Label analogie de l'etiquette sur la can de soupe
+  Mais quand on regarde le label il y a beacoup d'info : ingrédient, recettes
+  etc ...
+
+  L'analogie la soupe est le label les ingrédient etc c'est les Annotations
+
+  Annotation : release date, image info, resource lienentre
+  C'est pas utiliser pour trier, juste pour l'Information
+
+  C'est plus facile quand on a un déploiement
+
+  Les annotation peuvent facilement cohabiter avec les labels le but est différrent
+
+  Les annotation peuvent être utiliser comme instruction pour les autres
+  objets
+
+  Ingress : Pod (annotation with instruction to ingress to proceed)
+
+

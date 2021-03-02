@@ -240,3 +240,6 @@ kubectl get all --all-namespaces
 kubectl describe service -n kube-system
 
 
+-------------------------------
+Batir un Registre (depot local)
+-------------------------------

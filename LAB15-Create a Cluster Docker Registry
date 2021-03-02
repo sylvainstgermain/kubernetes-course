@@ -1,0 +1,54 @@
+We will run a docker registry in the cluster and use a special 
+repo prefix such as "127.0.0.1:30500" to match both the 
+port-forwarded pushing of images into the registry and the 
+nodes' pulling of new images for running on the cluster.
+
+Kubernetes uses Docker Registries to pull images in order to 
+build out the containers inside of Pods. By default, Kubernetes
+ is going to pull images from dockerhub, however, it is possible 
+ to get images pulled down from other trusted registries.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
