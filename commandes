@@ -89,6 +89,18 @@ kubectl apply -f manifest.yaml
 
 # Annotation
 kubectl describe pod nginx-annot | grep Annotations
+
+# tail -f
+kubectl get pods -w
+kubectl get pods --show-labels -w
+# supprime label app
+kubectl label pod simpleservice "app-"
+kubectl describe pod simpleservice | grep "Controlled"
+
+careful with label
+il peuvent faire 
+
+
 -------------------------------------------
 NAMESPACES
 -------------------------------------------

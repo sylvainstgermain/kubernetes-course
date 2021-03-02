@@ -1,6 +1,6 @@
 apiVersion: apps/v1
 kind: ReplicaSet
-metadata:
+metadata: # replicaset level
   name: simpleservice
 spec:
   replicas: 3
@@ -8,8 +8,8 @@ spec:
     matchLabels:
       app: simpleservice
   template:
-    metadata:
-      labels:
+    metadata: # PODS level
+      labels: # match line 8 & 9
         app: simpleservice
         version: "1"
     spec:
