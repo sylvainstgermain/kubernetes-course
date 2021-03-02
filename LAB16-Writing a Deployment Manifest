@@ -1,10 +1,42 @@
+For more reading on Kubernetes Deployments, check out:
+https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 
+kubectl apply vs kubectl create: https://stackoverflow.com/questions/47369351/kubectl-apply-vs-kubectl-create
+[Imperative vs Declarative] Imperative vs Declarative: https://medium.com/bitnami-perspectives/imperative-declarative-and-a-few-kubectl-tricks-9d6deabdde
 
+#Let's grab a manifest for us that is already written.
 
+kubectl apply -f https://static.alta3.com/projects/k8s/zombie.yaml
 
+kubectl get pods
+NAME                      READY   STATUS    RESTARTS   AGE
+zombie-75ddd4d4b4-959gv   1/1     Running   0          20s
+zombie-75ddd4d4b4-khm55   1/1     Running   0          20s
+zombie-75ddd4d4b4-pbt4p   1/1     Running   0          20s
 
+kubectl delete pod zombie-75ddd4d4b4-pbt4p
+kubectl get pods
+NAME                      READY   STATUS    RESTARTS   AGE
+zombie-75ddd4d4b4-959gv   1/1     Running   0          57s
+zombie-75ddd4d4b4-b5f8g   1/1     Running   0          11s
+zombie-75ddd4d4b4-khm55   1/1     Running   0          57s
 
+kubectl delete -f https://static.alta3.com/projects/k8s/zombie.yaml
+kubectl apply -f https://static.alta3.com/projects/k8s/zombie.yaml
 
+Another way to delete a Deployment is to get a listing of the Deployments, then delete the Deployment by its name:
+
+kubectl get deployment
+NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+zombie    3         3         3            3           4m
+
+kubectl delete deployment zombie
+kubectl get pods
+
+kubectl create -f https://static.alta3.com/projects/k8s/zombie.yaml
+
+#DELETE WITH LABEL "Now, just delete the entire deployment like this:"
+kubectl delete deploy -l app=nginx
 
 
 
