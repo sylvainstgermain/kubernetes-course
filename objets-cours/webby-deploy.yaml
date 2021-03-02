@@ -9,7 +9,7 @@
     selector:
       matchLabels:
         app: webby
-    replicas: 3
+    replicas: 4
     template:
       metadata:
         labels:
