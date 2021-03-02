@@ -33,6 +33,8 @@ If you decided to add another annotation to your manifest and ran
  additional line after the initial match on "Annotations". 
  Command would look like so. 
  kubectl describe pod nginx-annot | grep -A 1 Annotations
+ kubectl describe pod nginx-annot | grep -A 2 Annotations
+ ...
  . You can increase that number the more annotations you have.
 
 

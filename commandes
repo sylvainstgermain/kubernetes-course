@@ -87,6 +87,8 @@ kubectl describe pod <POD NAME>
 kubectl get pod POD -o yaml > manifest.yaml
 kubectl apply -f manifest.yaml
 
+# Annotation
+kubectl describe pod nginx-annot | grep Annotations
 -------------------------------------------
 NAMESPACES
 -------------------------------------------
