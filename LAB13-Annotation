@@ -1,0 +1,56 @@
+#Create a new Pod Manifest called ~/nginx-annot.yaml
+
+vim ~/nginx-annot.yaml
+
+---
+apiVersion: v1          # API version (endpoint) to use
+kind: Pod               # this is the resource to create
+metadata:
+  name: nginx-annot     # this is the name of the kubernetes resource
+  annotations:          # this is an annotation
+    alta3.com/logo-url: "https://static.alta3.com/images/Alta3-logo_large.png"      
+spec:
+  containers:
+  - name: nginx         # name of the container
+    image: nginx:1.18.0  # image and version of image to use
+    ports:
+    - containerPort: 80
+
+#CHALLENGE 01 (REQUIRED) - Deploy the Pod using 
+kubectl and verify that it is running.
+
+kubectl create -f nginx-annot.yaml
+kubectl get pods
+
+#CHALLENGE 02 (REQUIRED) - Verify the annotation using kubectl.
+kubectl describe pod nginx-annot | grep Annotations
+
+If you decided to add another annotation to your manifest and ran
+ the above command again, you will not see the second annotation 
+ on the list because the term "Annotations" which you are grepping 
+ for only exists once in the description of the pod. Instead you 
+ will run the same command with an added flag, -A 1 to get and 
+ additional line after the initial match on "Annotations". 
+ Command would look like so. 
+ kubectl describe pod nginx-annot | grep -A 1 Annotations
+ . You can increase that number the more annotations you have.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
