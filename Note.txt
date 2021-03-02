@@ -358,3 +358,8 @@ matchExpression:
   Ingress : Pod (annotation with instruction to ingress to proceed)
 
 
+------------------------------------
+Replicaset
+------------------------------------
+Load balancer ?
+ENvoy est utilisé dans le cluster du prof
