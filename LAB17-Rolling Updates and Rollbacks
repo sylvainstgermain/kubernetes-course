@@ -1,23 +1,47 @@
+Read more about Kubernetes updates here:
+https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#in-place-updates-of-resources
 
+This lab uses annotation to keep rollouts organized. Read more about annotations here: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 
+watch -n 2 'kubectl get pods'
 
+wget https://static.alta3.com/projects/k8s/zombie.yaml
+cat objets-cours/zombie.yam
+https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 
+kubectl apply -f objets-cours/zombie.yaml
 
+kubectl get deployments
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+zombie   3/3     3            3           10s
 
+Why are there three zombie-yyyyyyyyyy-zzzzz pods?
+Because a Deployment is made up of 1 or more pods. In this case replicas=3, so three idential pods are being deployed
+Is there any reason zombie-yyyyyyyyyy-zzzzz is named the way it is?
+*YES! All pods within a deployment are given this "double-hyphen" notation. Anytime you observe two-hyphens within a pod name, you can assume it is part of a deployment.
 
+#ake a look at the rollout history. You should only see one.
+kubectl rollout history deploy zombie
 
+deployment.apps/zombie 
+REVISION  CHANGE-CAUSE
+1         <none>
 
+Set an annotation on the CHANGE-CAUSE field.
+kubectl annotate deployment zombie kubernetes.io/change-cause="deployed ver. 1.18.0"
 
+kubectl rollout history deploy zombie
+deployment.apps/zombie 
+REVISION  CHANGE-CAUSE
+1         deployed ver. 1.18.0
 
+Take a look inside one of your zombie pods to check the deployed version.
+kubectl exec -it zombie-75ddd4d4b4-9r4nv -- bash
+nginx -v
+nginx version: nginx/1.18.0
 
-
-
-
-
-
-
-
-
+Exit the container
+exit
 
 
 
