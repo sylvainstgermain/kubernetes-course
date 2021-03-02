@@ -130,6 +130,7 @@ spec:             # the state to achive
 
 kubectl apply -f webweb-deploy.yaml
 kubectl delete deployment webweb
+
 -------------------------------
 Batir un Namespace
 -------------------------------
