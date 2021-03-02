@@ -382,4 +382,15 @@ Round-robbin faire le tour des noeud :
 
   Un daemonset est très différent, il doit avoir un POD sur chaque noeud et
   si pas assez de resource sur un noeud il y a un problème !!!
-  
+
+ReplicaSet : business apps
+Daemonset : interne admin app, ex calico
+
+Peut assi avoir un DaemonSet sur u certain typre d noeud ! Pas tous les noeuds
+On a un selector possible mais seulement au niveau du pod dans le yaml
+
+Two ways to make target certian node dans la section spec
+nodeSelector :
+  label
+nodeName: node-1
+
