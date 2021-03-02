@@ -1,0 +1,77 @@
+kubectl config get-contexts
+
+CURRENT   NAME                       CLUSTER                    AUTHINFO   NAMESPACE
+          dev-context                kubernetes-the-alta3-way   admin      dev
+*         kubernetes-the-alta3-way   kubernetes-the-alta3-way   admin      default
+          prod-context               kubernetes-the-alta3-way   admin      prod
+          test-context               kubernetes-the-alta3-way   admin      test
+
+kubectl config use-context kubernetes-the-alta3-way           
+
+http://yaml.org/spec/1.2/spec.html
+
+kubectl api-resources
+
+apiVersion:
+kind:
+metadata:
+spec:
+
+apiVersion: is a required key field. It defines the Kubernetes API you are using.
+kind: For this lab, the value field will be either Pod or Deployment.
+metadata: A required key that helps uniquely identify the object. Subkeys are name, uid, labels, and namespace.
+spec: Specifies the desired state of an object. If a spec is deleted, the object will be purged from the system.
+status: PURELY FYI - A system generated value that shows the actual state of the object at the current time.
+
+
+Focus on that key kind:. The kind: key describes the object you want 
+kubernetes to create. Curious what the entire list of objects is?
+ Issue the following command. The far right column reflects the 
+ 'value' you could place to the right of the key kind: within your manifest.
+
+kubectl api-resources
+
+https://hub.docker.com/r/mhausenblas/simpleservice/
+
+kubectl create -f simpleservice.yaml
+
+kubectl describe pod simpleservice
+
+kubectl delete -f simpleservice.yaml
+
+kubectl describe pod webservice01
+
+kubectl delete -f webby-pod01.yaml
+
+CHALLENGE 01 (OPTIONAL) - Finish early? Repeat the exercise 
+by using the dev-context. You can select this context by running 
+kubectl config use-context dev-context. You can use the same 
+manifests when you repeat the lab.
+
+kubectl config use-context dev-context
+kubectl create -f objets-cours/simpleservice.yaml
+kubectl get pods
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
