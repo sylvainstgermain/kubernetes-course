@@ -523,3 +523,48 @@ kubectl describe ns
 LimitRange object est un objet comme resourceQuta
 
 Alternative to resource quota
+
+-----------------------------------
+Mercredi
+------------------------------------
+Pourquoi les container restart, meme si pas de probe liveness ?
+
+Dans le manifest de touts les pods par défaut
+il y a une section qui est restartPolicy
+
+restartPolicy: Always
+
+C'est always par défaut !
+Il y a d'autre option : 
+onFailure - If it die on unatural death
+Never - Peut être utiliser sur les container ephemere
+
+Container are build by docker not kubernetes
+What send command to docker ? Kubelet !
+
+Auto restart is done by kubelet not kubernetes !
+
+Containers
+Dead container is rebuild by the orders of kubelet by restart policy
+
+Pods 
+rebuild by the order of the controller, if it is part of a replicaset / deployment
+hence a replicaController
+
+port-forwarding ?
+Use for debugging, it's not expose the container !!! different
+
+kubectl port-forward pod localport:containerPort
+
+What are label use for ?
+grouping similar objet -> YES
+determing what pods belong to object like deployement -> YES
+Providing metadata to object -> No, it's annotation
+
+Garantee the container has a certain amount of resources ?
+containers:
+  resources:
+    requests:
+
+
+
