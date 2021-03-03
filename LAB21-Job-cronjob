@@ -25,9 +25,19 @@ kubectl get pods --selector=job-name=countdown --output=yaml | grep -A10 ^apiVer
 #Delete the job.
 kubectl delete job countdown
 
+kubectl apply -f objets-cours/countdown.yaml
 
+#Now, watch the jobs automatically start every minute
+kubectl get pods -w
 
+NAME                         READY   STATUS    RESTARTS   AGE
+countdown-1614791880-7jpkg   0/1     Pending   0          0s
+countdown-1614791880-7jpkg   0/1     Pending   0          0s
+countdown-1614791880-7jpkg   0/1     ContainerCreating   0          0s
+countdown-1614791880-7jpkg   0/1     Completed           0          3s
 
+#
+kubectl logs countdown-1614791880-7jpkg
 
 
 
