@@ -94,6 +94,108 @@ wget https://labs.alta3.com/courses/k8s/deployment-new.yaml -O deployment.yaml
 
 kubectl apply -f /home/student/static/kubernetes-course/objets-cours/deployment.yaml
 
+# Take a look at the class.yaml manifest. Inside you can see that we are
+# defining a StorageClass that allows us to dynamically provision the 
+# PersistentVolumes any time that an appropriate PersistentVolumeClaim gets
+# created. After viewing this, let's create it.
+cd /home/student/git/external-storage/nfs-client/deploy
+kubectl apply -f class.yaml
+
+#In order to verify that the StorageClass works, we need to create 
+# a PersistentVolumeClaim.
+kubectl create -f test-claim.yaml
+
+#Next, let's view the Pod we'll be creating.
+ cat test-pod.yaml
+ mv test-pod.yaml test-pod.yaml.ORIG
+ vi test-pod.yaml
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: test-pod
+spec:
+  containers:
+  - name: test-pod
+    image: busybox:latest
+    command:
+      - "/bin/sh"
+    args:
+      - "-c"
+      - "touch /mnt/SUCCESS && exit 0 || exit 1"
+    volumeMounts:
+      - name: nfs-pvc
+        mountPath: "/mnt"
+  restartPolicy: "Never"
+  volumes:
+    - name: nfs-pvc
+      persistentVolumeClaim:
+        claimName: test-claim
+
+kubectl apply -f test-pod.yaml
+
+#Now we'll verify our pod has "completed."
+kubectl get pods
+NAME                                      READY   STATUS      RESTARTS   AGE
+nfs-client-provisioner-676bcd984c-lmnwn   1/1     Running     0          108s
+test-pod                                  0/1     Completed   0          57
+
+#Let's also make sure that its using the right mounts and PVCs
+kubectl describe pod test-pod
+
+...
+    Mounts:
+      /mnt from nfs-pvc (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-ccqb9 (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             False
+  ContainersReady   False
+  PodScheduled      True
+Volumes:
+  nfs-pvc:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  test-claim
+    ReadOnly:   false
+  default-token-ccqb9:
+    Type:        Secret (a volume popu
+
+#Next, let's go back into node-1 to see if the file was actually creaated. In a SECOND TMUX PANE,
+# perform the following command to move over to node-1.
+ssh node-1
+cd /srv/nfs/kubedata
+ls
+
+--> default-test-claim-pvc-b46831c6-d425-4f87-a485-aa3fb5a0c996
+
+#This is the PersistentVolumeClaim that is used to actually write your
+# data to the physical storage
+#Move into your PVC directory.
+cd default-test-claim-pvc-b46831c6-d425-4f87-a485-aa3fb5a0c996
+ls
+SUCCESS
+
+# Excellent Work! Now go back to YOUR FIRST TMUX PANE and remove 
+# your test-pod.
+kubectl delete pods test-pod
+
+#in your SECOND TMUX PANE, you should be able to see that the data is 
+# still there, outside of the Pod Lifecycle.
+ls default-test-claim-pvc-b46831c6-d425-4f87-a485-aa3fb5a0c996
+SUCCESS
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
