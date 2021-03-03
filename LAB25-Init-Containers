@@ -1,0 +1,107 @@
+complete up te step number 5 !!!
+Read more about Kubernetes Secretes here: https://kubernetes.io/docs/concepts/configuration/secret/
+Secret Design Documentation: https://github.com/kubernetes/community/blob/master/contributors/design-proposals/auth/secrets.md
+
+
+cd ~/k8s-certs
+
+#Generate a private key for webby
+openssl genrsa -out webby.com.key 2048
+
+#Generate a CSR and answer all questions. MAKE SURE YOU LIST 
+#localhost FOR THE COMMON NAME! If the field is blank below, 
+#just hit the Enter key. (Email Address, A challenge password,
+# and An optional company name)
+openssl req -new -key webby.com.key -out webby.com.key.csr
+
+Country Name (2 letter code) [AU]:US
+State or Province Name (full name) [Some-State]:PA
+Locality Name (eg, city) []:Harrisburg
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:webby
+Organizational Unit Name (eg, section) []:webby
+Common Name (e.g. server FQDN or YOUR name) []:localhost
+Email Address []:
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+#Sign the CSR with our CA key.
+openssl x509 -req -in  webby.com.key.csr -CA ~/k8s-certs/ca.pem -CAkey ~/k8s-certs/ca-key.pem -CAcreateserial -out webby.com.crt -days 1825 -sha256
+
+certs/ca-key.pem -CAcreateserial -out webby.com.crt -days 1825 -sha256
+Signature ok
+subject=C = US, ST = PA, L = Harrisburg, O = webby, OU = webby, CN = localhost
+Getting CA Private Key
+
+#Now encapsulate the secrets using kubectl create command.
+kubectl create secret generic webby-keys --from-file=/home/student/k8s-certs/webby.com.crt --from-file=/home/student/k8s-certs/webby.com.key
+secret/webby-keys created
+
+#Get the newly generated YAML from the previous command
+kubectl get secrets webby-keys -o yaml
+
+#For system wide use, OpenSSL should provide you /etc/ssl/certs and 
+#/etc/ssl/private. The latter of which will be restricted 700 to root:root.
+cd ~
+
+#Now edit the NGINX pod manifest to include the above secret to the pod volumeMounts in the same fashion as ConfigMap.
+vim nginx-locked-n-loaded.yaml
+
+#Stop the old NGINX pod.
+kubectl delete pods nginx-configured 
+
+#Start the new configured version of your NGINX pod.
+kubectl create -f objets-cours/nginx-locked-n-loaded.yaml
+
+Your final steps:
+* Edit the nginx.conf file
+* Modify the config to add a redirect rule on port 80 to port 443
+* Create a new ConfigMap from your new NGINX config file
+* Create a new pod nginx-locked-n-loaded-02 that serves on port 443
+* Test (Take a look at the below for assistance)
+
+# Delete your old nginx-conf configMap.
+kubectl delete cm nginx-conf
+
+#Create a new configMap from your nginx.conf file
+kubectl create cm nginx-conf --from-file=objets-cours/nginx.conf
+
+#Copy your nginx-locked-n-loaded.yaml into nginx-locked-n-loaded-02.yaml
+cp nginx-locked-n-loaded.yaml nginx-locked-n-loaded-02.yaml
+
+#Edit your cloned manifest nginx-locked-n-loaded-02.yaml file to look 
+#like the following. The changes you need to make are commented.
+
+#Create the pod.
+kubectl apply -f objets-cours/nginx-locked-n-loaded-02.yaml
+
+#kubectl get pods
+NAME                            READY   STATUS    RESTARTS   AGE
+nginx-locked-n-loaded           1/1     Running   0          8m33s
+nginx-locked-n-loaded-secrets   1/1     Running   0          6s
+
+#Verify that it is serving correctly by port-forwarding the pod.
+kubectl port-forward nginx-locked-n-loaded-secrets 9090:443
+
+#Due to the internal NGINX configuration, we cannot have you display the
+# output of the pod using your aux1 port. However, you may verify that 
+#it works by performing the following curl command.
+curl https://localhost:9090
+<p>Welcome to the land of Kubernetes.</p>
+<p>No cloud should be without one!</p>
+
+<p><em>Thank you for using K8s.</em></p>
+<a href="/static/">Click to see static files (once they are configured)</a>
+<a href="/webby/"> Click to see webby (once it is configured)</a>
+</body>
+</html>
+
+
+
+
+
+
+
+
