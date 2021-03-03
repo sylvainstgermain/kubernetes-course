@@ -39,6 +39,10 @@ countdown-1614791880-7jpkg   0/1     Completed           0          3s
 #
 kubectl logs countdown-1614791880-7jpkg
 
+#Delete your cron job, or it will run continuously.
+kubectl delete cj countdown
+kubectl delete pods --all
+
 
 
 
