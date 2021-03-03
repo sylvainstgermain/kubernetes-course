@@ -71,6 +71,12 @@ CHALLENGE 01 (Optional) - Delete your linux-pod-rl pod, then increase
 the Memory limits to 512Mi, then load the pod. You will see that Htop 
 reports greater utilizat
 
+kubectl get pods
+kubectl delete pods linux-pod-r
+kubectl delete pods linux-pod-rl
+kubectl get pods
+
+
 
 
 
