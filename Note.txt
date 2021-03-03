@@ -648,6 +648,29 @@ tous les containers obtienne le meme mountpoint vers le configmap dans etcd
 c'est au namespace level - c'est circonscript par un namespace !!
 
 
+Info
+Binary data cannot be in a copnfigMap only ascii file
+
+Maintain ?
+
+How we can take a config map ?
+kubeclt get cm
+
+How to mount an object like a configmap in a container inside a POD.
+nginx pod (nginx.yaml)
+
+configMap : nginx-config
+the map has the file nginx.conf
+
+Before I can put a configmap in the container, I need to build a library inside the pod.
+
+
+If the directory is not existing it will create it
+If the directory exist it will overwrite
+
+
+
+
 
 
 

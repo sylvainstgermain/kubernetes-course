@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    what: what
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.18.0
+    ports:
+    - containerPort: 80
+    volumeMounts:
+      - name: homersimpson
+        mountPath: /etc/nginx/  # if it exist it overwrite !
+        subpath: nginx.conf # protege le repertoire, overwrite juste nginx.conf
+  volumes:
+    - name: homersimpson
+      configMap:
+        name: nginx-config  #nom de la config map creer
+
+# kubectl exec -it 
