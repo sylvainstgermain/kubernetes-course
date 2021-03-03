@@ -13,8 +13,86 @@ Deployment
 # delete all stuff start from scratch
 kubectl delete all --all
 
+#You MUST use the default namespace for this lab. 
+#Please begin by ensuring you are using the proper context.
+kubectl config use-context kubernetes-the-alta3-way
+
+#Before getting into PVs or StorageClasses, we need to have an NFS s
+#erver running. Let's create an NFS server on node-1. SSH there now.
+ssh node-1
+
+#The first step to creating the NFS server is to create
+# a directory to serve.
+sudo mkdir /srv/nfs/kubedata -p
+
+#Change the ownership of that directory to nobody.
+sudo chown nobody: /srv/nfs/kubedata
+
+# Download the NFS Kernel Server.
+sudo apt-get install nfs-kernel-server -y
+
+#Now let's enable the nfs-server.
+sudo systemctl enable nfs-server
+
+#Next, start the nfs-server.
+sudo systemctl start nfs-server
+
+#We need to edit the /etc/exports file to export the directory.
+sudo vim /etc/exports
+
+... end of file
+/srv/nfs/kubedata    *(rw,sync,no_subtree_check,no_root_squash,no_all_squash,insecure)
+
+#We'll use an exportfs command to actually start exporting the file.
+sudo exportfs -rav
 
 
+#Now that we have the NFS server running, we can exit back
+# to our -bchd machine.
+exit
+
+#Before mounting the NFS server on any of our other nodes, we need 
+#to determine what the IP address of node-1 is
+kubectl get nodes -o wide
+node-1   Ready    <none>   2d3h   v1.18.0   10.3.188.245 
+
+### Node 1 IP = 10.3.188.245 
+### Mountpoint NFS =/srv/nfs/kubedata
+
+#Next, we'll ssh into node-2 and verify that we can mount the NFS server
+ssh node-2
+sudo apt-get install nfs-common -y
+sudo mount -t nfs 10.3.188.245:/srv/nfs/kubedata /mnt
+exit
+
+ssh node-3
+sudo apt-get install nfs-common -y
+sudo mount -t nfs 10.3.188.245:/srv/nfs/kubedata /mnt
+exit
+
+# Time to mount the NFS server directory. 
+# Make sure you are using the IP address of the node-1 server that you copied
+# a few commands back.
+
+#Change into your ~/git directory.
+cd ~/git
+git clone https://github.com/kubernetes-incubator/external-storage.git
+
+#Change directorie
+cd external-storage/nfs-client/deploy
+
+# This project already comes with its own set of RBAC rules. 
+# You can cat or view them now and then simply move them into your cluster 
+# with a kubectl apply.
+kubectl apply -f rbac.yaml
+
+# Download the deployment file. Then edit to match with your correct node-1 IP.
+# Use :set number to view the line number on the left hand side. You can also
+# see the line number you are on in the bottom right hand corner - 
+# to the left of the comma.
+wget https://labs.alta3.com/courses/k8s/deployment-new.yaml -O deployment.yaml
+
+kubectl apply -f /home/student/static/kubernetes-course/objets-cours/deployment.yaml
 
 
 
