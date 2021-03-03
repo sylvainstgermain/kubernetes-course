@@ -669,7 +669,11 @@ If the directory is not existing it will create it
 If the directory exist it will overwrite
 
 
+Besoins aussi des configMap pour les password etc ..
+ca s.appel un "secret"  un configMap secure
 
+Lot of kind of sercret but generic is fine
+limited by namescape !
 
 
 
