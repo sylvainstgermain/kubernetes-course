@@ -1,0 +1,32 @@
+Instantiate a Dynamic Provisioner for a Network File System backed storage solution.
+
+ServiceAccount
+Role
+RoleBinding
+ClusterRole
+ClusterRoleBinding
+StorageClass
+Deployment
+|-> ReplicaSet
+| - > Pod
+
+# delete all stuff start from scratch
+kubectl delete all --all
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

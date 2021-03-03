@@ -741,7 +741,13 @@ node-3 : NFS-client
 StorageClass
 persitent volume is separate alone can live without pod !
 
+19 diffewrent kind of storage, and they are very different !!
+All of them has a reclaim Policy 
 
+https://kubernetes.io/docs/concepts/storage/storage-classes/#provisioner
+
+
+Le storage PV faire attention sur quel noeud il est fait !!!
 
 
 
