@@ -625,6 +625,28 @@ Persistent storage
 ConfigMaps & Secrets
 ------------------------------------------------
 
+Step 1 - pod
+create a config map : anifest pour le POD avec nginx
+
+step 2 - create the configuration file
+create a nginx.conf
+
+step 3 - create a config map object
+                         nom significaif
+kubectl create configmap nginx-conf --from-file=nginx.conf 
+
+on met le fichier nginx.conf dans le config map nginx-conf
+
+kubectl get cm 
+kubectl describe cm 
+
+step 4 - include the configMap object in the manifest (in the pod)
+
+La configmap est independante du container et est contenu dans etcd !!!!
+
+tous les containers obtienne le meme mountpoint vers le configmap dans etcd
+c'est au namespace level - c'est circonscript par un namespace !!
+
 
 
 
