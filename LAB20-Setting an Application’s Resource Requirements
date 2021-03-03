@@ -2,16 +2,74 @@
 vim ~/linux-pod-r.yaml
 
 kubectl apply -f objets-cours/linux-pod-r.yaml
+
 kubectl describe pods linux-pod-r | egrep "cpu|memory"
+cpu:        300m
+memory:     128Mi
+
+kubectl apply -f objets-cours/linux-pod-rl.yaml
+
+kubectl describe pods linux-pod-rl | egrep Limits -A 2
+ Limits:
+      cpu:     300m
+      memory:  256Mi
+
+kubectl describe pods linux-pod-rl | egrep Requests -A 2
+Requests:
+      cpu:        300m
+      memory:     128Mi
+
+Update the apt cache inside the linux pod. First we will need a DNS server set in the config.
+kubectl exec -it linux-pod-rl -- bash
+echo "nameserver 8.8.8.8" | tee /etc/resolv.conf
+exit
+kubectl exec -it linux-pod-rl -- apt-get update
+
+Test the limits controls by loading the server and watching CPU and memory utilization. Install htop inside the linux-pod-rl pod.
+
+# install some apps for testing
+kubectl exec -it linux-pod-rl -- apt-get install htop
+kubectl exec -it linux-pod-rl -- apt-get install stress
+
+# execute htop in a sheell monitor
+kubectl exec -it linux-pod-rl -- bash
+kubectl exec -it linux-pod-rl -- htop
 
 
+#You might notice that htop is showing more memory available than 256 Mb. 
+#Inside the container, we're actually seeing a reflection of the total 
+#system memory available on the worker node. That's okay, the container 
+#is still limited to only using 256 MB. Docker actually placed this 
+#information in a file stored inside of the container. Check it out with
+# the following command
 
+cat /sys/fs/cgroup/memory/memory.limit_in_bytes
+268435456
 
+#it is time to punish your pod.
+stress --vm 1 --vm-bytes 300M --vm-hang 1
 
+stress: info: [426] dispatching hogs: 0 cpu, 0 io, 1 vm, 0 hdd
+stress: FAIL: [426] (415) <-- worker 427 got signal 9
+stress: WARN: [426] (417) now reaping child worker processes
+stress: FAIL: [426] (451) failed run completed in 0s
 
+Execute the previous command several more times, and watch as htop reacts. 
+Htop will show that you exceed the memory limit temporarily before stress 
+reports a FAIL.
 
+stress --vm 1 --vm-bytes 300M --vm-hang 1
+stress --vm 1 --vm-bytes 300M --vm-hang 1
 
+Notice that spec.containers.resources.limits.memory is currently set to 
+"256Mi". If you increase this number, more memory will be allowed to be 
+consumed when you stress your pod.
 
+Exit out of your container (type exit) and stop running the htop (type q).
+
+CHALLENGE 01 (Optional) - Delete your linux-pod-rl pod, then increase 
+the Memory limits to 512Mi, then load the pod. You will see that Htop 
+reports greater utilizat
 
 
 
