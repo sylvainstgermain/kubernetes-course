@@ -1,12 +1,29 @@
 
-vim ~/linux-pod-r.yaml
-
-kubectl apply -f objets-cours/linux-pod-r.yaml
 
 
+kubectl create -f https://static.alta3.com/projects/k8s/k8s-countdown.yaml
 
+watch kubectl get jobs
+NAME                      COMPLETIONS  DURATION  AGE
+countdown                 1/1          12s       5s
 
+When the job initially runs, it spawns a pod name, then runs under that name,
+ and then it dies. Sad but true! However it leaves its logs behind which you 
+ can collect and examine. 
+First you need to find the dead job's pod name as follows:
 
+# 
+PODS=$(kubectl get pods --selector=job-name=countdown --output=jsonpath={.items..metadata.name})
+
+#Using the $PODS variable, print the logs to see the standard output.
+kubectl logs $PODS
+
+#Let's examine how that slick command (two steps back) worked. We'll dig a little
+# deeper by selecting the first 10 lines of the jobs YAML
+kubectl get pods --selector=job-name=countdown --output=yaml | grep -A10 ^apiVersion:
+
+#Delete the job.
+kubectl delete job countdown
 
 
 

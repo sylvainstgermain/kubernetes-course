@@ -609,7 +609,9 @@ Lab create a cronjob
 
 cronjob -> job -> pod -> container -> task in the cluster
 
-
+# parametre important
+parallelism
+completion 
 
 
 
