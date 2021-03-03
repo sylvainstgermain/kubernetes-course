@@ -1,0 +1,133 @@
+Here are some additional scaling resources for you to check out:
+his lab will check to see which nodes are ready.
+
+Then this lab will teach how to configure containers to use LivenessProbes and ReadinessProbes, and explore their use cases.
+
+If a node isn't ready, there may be a problem with it. Nodes labeled as "ready" can accept pod deployment. However, if a node comes up as "not ready," there's the possibility of a problem... or the node simply hasn't finished initializing.
+
+Similarly, containers can have ReadinessProbes inserted into them. This will help services determine if it should start to use the Pod or if it has to wait until all the containers inside of the Pod have become ready.
+
+Also, LivenessProbes can be placed into containers as well. These are intended to assure that a container is still performing it's essential tasks. If they are deemed not to be alive anymore, even though the container itself is still running, the LivenessProbe will cause a reboot of the container.
+
+Let's learn ways to explore JSON data. First, we'll look at JSONPATH, and then using jq. Find more information on the JSONPATH here: https://kubernetes.io/docs/reference/kubectl/jsonpath/
+
+There are two commands to run. The first command will set the environment variable JSONPATH. The second command will run the kubelet get command against that path and will grep for the term that is desired.
+
+# commands
+JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status} ** '
+kubectl get nodes -o jsonpath="$JSONPATH" | grep "Ready=True"
+...
+kubectl apply -f objets-cours/webby-deploy.yaml
+
+#Explore the full structure of the JSON that was returned. Use less 
+kubectl get nodes -o json | less
+
+#Start by using a jq query to return all the items in a list format. This will return several thousand lines, but that's okay. We will learn to select the data of most interest in subsequent steps.
+
+kubectl get nodes -o json | jq '.items[]'
+
+#Next, narrow in on just items.metadata.name. (See line 18 above)
+kubectl get nodes -o json | jq '.items[] | { name: .metadata.name}'
+{
+  "name": "node-1"
+}
+{
+  "name": "node-2"
+}
+{
+  "name": "node-3"
+}
+
+#Select only the status conditions for each of the nodes (both true and false values).
+kubectl get nodes -o json | jq '.items[] | { status: .status.conditions[]}'
+
+{
+    "lastHeartbeatTime": "2021-03-02T21:40:17Z",
+    "lastTransitionTime": "2021-03-01T18:46:40Z",
+    "message": "kubelet has sufficient PID available",
+    "reason": "KubeletHasSufficientPID",
+    "status": "False",
+    "type": "PIDPressure"
+  }
+}
+{
+  "status": {
+    "lastHeartbeatTime": "2021-03-02T21:40:17Z",
+    "lastTransitionTime": "2021-03-01T18:46:41Z",
+    "message": "kubelet is posting ready status. AppArmor enabled",
+    "reason": "KubeletReady",
+    "status": "True",
+    "type": "Ready"
+
+kubectl get nodes -o json | jq '.items[] | { status: .status.conditions[] | select(.status == "True"), name: .metadata.name}'
+
+{
+  "status": {
+    "lastHeartbeatTime": "2021-03-02T21:40:45Z",
+    "lastTransitionTime": "2021-03-01T18:46:41Z",
+    "message": "kubelet is posting ready status. AppArmor enabled",
+    "reason": "KubeletReady",
+    "status": "True",
+    "type": "Ready"
+  },
+  "name": "node-1"
+}
+{
+  "status": {
+    "lastHeartbeatTime": "2021-03-02T21:40:43Z",
+    "lastTransitionTime": "2021-03-01T18:46:51Z",
+    "message": "kubelet is posting ready status. AppArmor enabled",
+    "reason": "KubeletReady",
+    "status": "True",
+    "type": "Ready"
+  },
+  "name": "node-2"
+}
+{
+  "status": {
+    "lastHeartbeatTime": "2021-03-02T21:40:17Z",
+    "lastTransitionTime": "2021-03-01T18:46:41Z",
+    "message": "kubelet is posting ready status. AppArmor enabled",
+    "reason": "KubeletReady",
+    "status": "True",
+    "type": "Ready"
+  },
+  "name": "node-3"
+}
+
+--------------------------------------------------
+#Now it's time to work with a livenessProbe. 
+his one in particular will cause k8s to send HTTP GET messages every 5 seconds to http:<POD-IP>:9876/health. Create the following manifest that will make use of our simpleservice image.
+--------------------------------------------------
+kubectl apply -f objets-cours/sise-lp.yaml
+kubectl get pods
+
+kubectl describe pods sise-lp | grep -i health
+Liveness:       http-get http://:9876/health delay=2s timeout=1s period=5s #success=1 #failure=3
+
+or
+kubectl port-forward sise-lp 2224:9876 --address=0.0.0.0
+
+curl localhost:2224/health
+{"healthy": true}
+
+Before moving further, reivew https://github.com/mhausenblas/simpleservice. Pay special attention to the section that reads as follows, 'HEALTH_MIN and HEALTH_MAX ... the min. and max. delay in milliseconds that the /health endpoint responds'
+
+Also, take a look at the k8s documentation for liveness and readiness probes. This link has all of the settings available: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes.
+
+kubectl apply -f objets-cours/badpod.yaml
+kubectl delete -f objets-cours/badpod.yaml
+
+kubectl describe pods badpod
+
+
+
+
+
+
+
+
+
+
+
+

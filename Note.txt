@@ -566,5 +566,40 @@ containers:
   resources:
     requests:
 
+--------------------------------
+kubectl create ns demo 
+
+kubectl describe ns demo
+
+kubectl create -f pod.yaml -n demo
+
+#Creatioj d'un objet LimitRange 
+# Per name space s'applique a tous les pods
+
+kubectl create -f limitrange.yaml -n demo
+kubeclt describe ns demo
+
+# cree un pod "pod" dans le namespace demo 
+kubeclt create -f pod.yaml -n demo
+kubectl describe pod -n demo pod | grep Requests -A 2
+kubectl describe pod -n demo pod | grep Limits -A 2
+
+ResourceQuota set a hard limit to 60Mi by example
+
+What happen to pod already there ????
+kubeclt describe ns demo
+
+PODS attribute
+limits, requests, 
+
+Object 
+ResourceQuota
+LimitRange
+               
+
+
+
+
+
 
 
