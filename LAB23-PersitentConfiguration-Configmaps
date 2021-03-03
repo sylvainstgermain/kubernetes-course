@@ -52,9 +52,30 @@ index-file   1      2m11s
 nginx-conf   1      6m47s
 nginx-txt    1      18s
 
+kubectl create -f nginx-configured.yaml
 
+#Ensure your pod started.
+kubectl get pod nginx-configured
+NAME               READY   STATUS    RESTARTS   AGE
+nginx-configured   1/1     Running   0          24s
 
+#Port forward the pod.
+kubectl port-forward nginx-configured 2224:80 --address=0.0.0.0
 
+When a directory and config file already exists, override like this using subpath:
+￼
+containers:
+- name: nginx
+  volumeMounts:
+    mountPath: /etc/nginx/nginx.conf
+    subpath: nginx.conf
+When a directory does NOT exist, plus you want to put a file in it, do this:
+
+￼
+containers:
+- name: nginx
+  volumeMounts:
+    mountPath: /var/www/static/nginx.txt
 
 
 
