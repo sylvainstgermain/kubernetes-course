@@ -595,7 +595,21 @@ limits, requests,
 Object 
 ResourceQuota
 LimitRange
-               
+
+J'ai fini lab20 !               
+------------------------------
+Manqué 40 mnutes
+-------------------------------
+Crontab
+
+crontab guru webpage
+https://crontab.guru/
+
+Lab create a cronjob
+
+cronjob -> job -> pod -> container -> task in the cluster
+
+
 
 
 

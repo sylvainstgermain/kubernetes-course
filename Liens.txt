@@ -10,6 +10,8 @@ https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZWY4Y2FjODUtN2Q4MC00NDRlL
 https://www.json2yaml.com/
 git add *;git commit -a -m "www";git push
 
+# crontab guru
+https://crontab.guru/
 
 git clone git@github.com:sylvainstgermain/kubernetes-course.git
 
