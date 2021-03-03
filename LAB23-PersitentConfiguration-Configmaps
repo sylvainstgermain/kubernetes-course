@@ -1,6 +1,59 @@
 kubectl 
 kubectl create -f https://static.alta3.com/projects/k8s/k8s-countdown.yaml
 
+https://hub.docker.com/_/nginx
+wget https://static.alta3.com/projects/k8s/nginx.conf.final -O ~/nginx.conf
+
+# create the config map
+kubectl create configmap nginx-conf --from-file=nginx.conf
+
+How are files injected into containers within pods?
+In Kubernetes this is done with ConfigMaps
+
+Why would you want to inject a file into a container?
+One reason is to apply files containing custom configurations that modify the way an application runs. Here we are taking an image from the Docker repository, and applying our own custom configuration.
+
+What would happen if we injected a bad config file into our NGINX application?
+*The container running the NGINX application would fail to start. Kubernetes would mark the pod as being in a failed state."
+
+#Check if the ConfigMap was properly created.
+kubectl get configmap
+
+NAME         DATA   AGE
+nginx-conf   1      3m7s
+
+If the DATA value above is 0 (zero), the ConfigMap will NOT work.
+
+Once again, you made this file in a previous lab, but let's make sure you didn't make any errors in creating it. Run the following command to download and extract index.html
+wget https://static.alta3.com/projects/k8s/index.html2 -O ~/index.html
+
+Create a ConfigMap for the index.html file. This is being created so that the file may be automatically injected into a pod at the time of creation.
+kubectl create configmap index-file --from-file=index.html
+
+Verify if the ConfigMap index-file was created.
+
+kubectl get configmap
+NAME         DATA   AGE
+index-file   1      17s
+nginx-conf   1      4m53s
+
+Our pod will have a container running an NGINX application, and will expose files it finds within the directory /var/www/static/ (within the container). Create a text file with clearly identifiable content, the opening lines of George Orwell's 1984 should work.
+echo "It was a bright cold day in April, and the clocks were striking thirteen." >> nginx.txt
+
+
+#Create a ConfigMap of our text file.
+kubectl create configmap nginx-txt --from-file=nginx.txt
+
+#Verify if the ConfigMap is loaded.
+kubectl get cm
+
+NAME         DATA   AGE
+index-file   1      2m11s
+nginx-conf   1      6m47s
+nginx-txt    1      18s
+
+
+
 
 
 
