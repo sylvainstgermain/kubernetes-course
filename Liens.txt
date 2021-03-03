@@ -1,8 +1,14 @@
-https://www.json2yaml.com/
-git add *;git commit -a -m "www";git push
-
+COURS
 https://live.alta3.com/groups/cheerful-crickets-burst/dashboard
 https://alta3researchinc.my.webex.com/alta3researchinc.my/j.php?MTID=m4b9a1e2b92c12e58fa1e63ef017e9e0b
+
+
+
+Entrevue -> 
+https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZWY4Y2FjODUtN2Q4MC00NDRlLWJjNDEtZWRjMTk0Yjg1NDRk%40thread.v2/0?context=%7b%22Tid%22%3a%22d05bc194-94bf-4ad6-ae2e-1db0f2e38f5e%22%2c%22Oid%22%3a%22f7672176-ff91-4878-bc33-606a6efe1886%22%7d
+
+https://www.json2yaml.com/
+git add *;git commit -a -m "www";git push
 
 
 git clone git@github.com:sylvainstgermain/kubernetes-course.git

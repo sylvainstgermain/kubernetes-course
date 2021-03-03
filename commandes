@@ -55,12 +55,15 @@ kubeclt apply  # never better recreate
 kubectl edit myfirstpod
 kubectl delete pods --all
 
-#shell
-                 
+
+# Shell dans le pod
+kubectl exec -it nginx -- sh             
+
 # Fonctionne seulement s'il y a un container dans le pod nginx
 kubectl exec -it nginx date
 
 kubectl exec -it nginx -- sh
+kubectl describe pod nginx
 
 # pods par nombre de restart
 kubectl get pods --all-namespaces --sort-by='.status.containerStatuses[0].restartCount'
@@ -207,4 +210,105 @@ sudo docker push bchd.registry/stgermains-webby
 sudo docker build -t welcome -f scratch .
 sudo docker run -it welcome
 
+----------------------------------------------
+LABEL selector
+----------------------------------------------
+kubectl get pods --show-labels --all-namespaces
 
+ # create label
+kubectl label pods nginx app=web_service
+
+# 10.look label 
+kubectl get pods -L app
+
+kubectl get pod nginx -o yaml > nginx-pod-update.yaml
+
+#Now apply the configuration change to your pod.
+kubectl apply -f nginx-pod-update.yaml
+
+#Once again, get the labels on every pod.
+kubectl get pods --show-labels --all-namespaces
+
+#Get the label value of all pods with label key app
+kubectl get pods -L app
+
+----------------------------------------------
+Annotation
+----------------------------------------------
+kubectl describe pod nginx-annot | grep Annotations
+kubectl describe pod nginx-annot | grep -A 1 Annotations
+kubectl describe pod nginx-annot | grep -A 2 Annotations
+
+----------------------------------------------
+ReplicaSet
+----------------------------------------------
+vim ~/sise-rs.yaml
+kubectl apply -f kubernetes-course/objets-cours/sise-rs.yaml
+kubectl get pods
+kubectl get rs
+kubectl describe rs
+kubectl delete -f kubernetes-course/objets-cours/sise-rs.yaml
+
+----------------------------------------------
+Deployement
+----------------------------------------------
+vim ~/zombie.yaml
+kubectl apply -f zombie.yaml
+kubectl get pods
+kubectl delete pod zombie-75ddd4d4b4-pbt4p
+kubectl get pods
+kubectl delete -f zombie.yaml
+kubectl apply -f zombie.yaml
+kubectl get deployment
+kubectl delete deployment zombie
+kubectl get pods
+kubectl delete deploy -l app=nginx
+
+kubectl apply -f objets-cours/webby-deploy.yaml
+kubectl delete -f objets-cours/webby-deploy.yaml
+kubectl apply -f objets-cours/webby-deploy.yaml
+kubectl delete deployment webservice
+kubectl apply -f objets-cours/webby-deploy.yaml
+kubectl delete deployment -l app=webby<
+
+----------------------------------------------
+Rollback
+----------------------------------------------
+kubectl apply -f zombie.yaml
+kubectl get deployments
+kubectl rollout history deploy zombie
+
+# add annotation to create a change
+kubectl annotate deployment zombie kubernetes.io/change-cause="deployed ver. 1.18.0"
+kubectl rollout history deploy zombie
+
+# look in the container
+kubectl exec -it zombie-75ddd4d4b4-9r4nv -- bash
+nginx -v
+nginx version: nginx/1.18.0
+
+#Edit the zombie deployment file:
+#NGINX version from 1.18.0 into 1.19.6.
+kubectl apply -f objets-cours/zombie.yaml
+#Manually set an annotation on the CHANGE-CAUSE field. NOTE: Setting 
+#this annotation could be part of an automated process
+kubectl annotate deployment zombie kubernetes.io/change-cause="ver. 1.19.6"
+
+kubectl apply -f objets-cours/zombie.yaml --record
+kubectl rollout history deploy zombie
+kubectl annotate deployment zombie kubernetes.io/change-cause="deployed latest stable release"
+----- Rollback
+kubectl rollout history deploy zombie --revision=1
+kubectl rollout undo deploy/zombie
+kubectl rollout status deploy zombie
+kubectl get pods
+# check pods
+kubectl exec -it zombie-dc59bf87c-2mbbj -- bash
+nginx -v
+nginx version: nginx/1.19.6
+
+# To rollback to a specific revision on "zombie",
+kubectl rollout undo deploy/zombie --to-revision=1
+
+# delete deployment
+kubectl delete deploy zombie
