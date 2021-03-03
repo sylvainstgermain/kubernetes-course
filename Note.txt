@@ -675,6 +675,72 @@ ca s.appel un "secret"  un configMap secure
 Lot of kind of sercret but generic is fine
 limited by namescape !
 
+-----------------------------------------
+Container initial
+------------------------------------------
+kubectl get svc
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   172.16.3.1   <none>        443/TCP   2d2h
+
+kubectl expose pod nginx-locked-n-loaded
+service/nginx-locked-n-loaded exposed
+
+NAME                    TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
+kubernetes              ClusterIP   172.16.3.1    <none>        443/TCP          2d2h
+nginx-locked-n-loaded   ClusterIP   172.16.3.69   <none>        80/TCP,443/TCP   14s
+
+kubectl describe svc nginx-locked-n-loaded
+
+Name:              nginx-locked-n-loaded
+Namespace:         default
+Labels:            app=nginx-configured
+Annotations:       <none>
+Selector:          app=nginx-configured
+Type:              ClusterIP
+IP:                172.16.3.69
+Port:              port-1  80/TCP
+TargetPort:        80/TCP
+Endpoints:         192.168.139.101:80,192.168.247.37:80
+Port:              port-2  443/TCP
+TargetPort:        443/TCP
+Endpoints:         192.168.139.101:443,192.168.247.37:443
+Session Affinity:  None
+Events:            <none>
+
+kubectl get pod -o wide
+NAME                            READY   STATUS    RESTARTS   AGE   IP                NODE     NOMINATED NODE   READINESS GATES
+nginx-locked-n-loaded           1/1     Running   0          27m   192.168.139.101   node-3   <none>           <none>
+nginx-locked-n-loaded-secrets   1/1     Running   0          19m   192.168.247.37    node-2   <none>           <none>
+
+nginx-locked-n-loaded : the IP match the endpoint !!!
+
+create a service !!!
+Keep an eye on the pod
+
+Expose a deployment !!!
+kubectl expose deploy zombie
+
+On a deployement all IP is expose !
+
+Problem every time a pod is recreate the pod has a new IP address
+be fortunately ! The service keep track and adapt to the new IP
+
+A service is need to enable microservice an make container able to speak together
+
+Object : StorageClass
+
+CEPHFS est utilisé pour 
+
+-----------------------
+NFS not high available 
+-----------------------
+node-1 : NFS server
+node-2 : NFS-client
+node-3 : NFS-client
+
+StorageClass
+persitent volume is separate alone can live without pod !
+
 
 
 
