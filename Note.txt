@@ -613,6 +613,17 @@ cronjob -> job -> pod -> container -> task in the cluster
 parallelism
 completion 
 
+jenkins (lab 32)
+is a gui that can create job in a kubernetes cluster
+
+how to suspend cronjob ?
+kubectl edit cj    # change in it
+
+
+-----------------------------------------------
+Persistent storage 
+ConfigMaps & Secrets
+------------------------------------------------
 
 
 
