@@ -19,3 +19,65 @@ The second combines our "webby" container with an "nginx" container. In subseque
 
 Funny XKCD comic "sidecar" design: https://imgs.xkcd.com/comics/containers.png
 ---------------------------------------------------------
+
+kubectl apply -f objets-cours/netgrabber.yam
+
+#Attach to the container tcpdumper (-c tcpdumper) within the pod netgrab (netgrab). After you run this command, the screen will say something like, Press ENTER if you don't see a command prompt. Disregard this message as it is a bit misleading.
+kubectl attach netgrab -c tcpdumper
+
+#Connect via a shell (-- sh) to the container busybox (-c busybox) within the pod netgrab (-it netgrab).
+kubectl exec -it netgrab -c busybox -- sh
+ping 8.8.8.8 -c 10
+exit
+
+#Notice that the container tcpdumper is displaying the traffic produced by the pod. 
+#Let's clean up this experiment. Exit the busybox image
+
+#Stop the pod netgrab
+NAME               READY   STATUS    RESTARTS   AGE
+apple-app          1/1     Running   0          34m
+banana-app         1/1     Running   0          32m
+netgrab            2/2     Running   0          2m31s
+nginx-configured   1/1     Running   0          3h16m
+
+kubectl delete pod netgrab
+pod "netgrab" deleted
+
+#Once netgrab is deleted, type 'exit' to leave the split screen.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
