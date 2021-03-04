@@ -813,3 +813,6 @@ calicoctl                                  1/1     Running   0          176m
 coredns-5d65dd49c8-859m2                   1/1     Running   0          2d22h
 coredns-5d65dd49c8-fz798                   1/1     Running   0          2d22h
 
+-------------------------------
+How Calicco plugin work ?
+--------------------------------
