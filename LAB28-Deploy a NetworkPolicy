@@ -18,7 +18,13 @@ kubectl config current-context
 #Confirm namespace test exists.
 kubectl get namespaces
 
+#Create a pod manifest to deploy client. If you never worked with BusyBox 
+#then you should take a few minutes to read about 
+#the project: https://www.busybox.net/about.html
+kubectl create -f objets-cours/client.yaml
 
+#Now, let's create another client in the namespace test. 
+#Name this one client02, and give the label run: client02.
 
 
 
