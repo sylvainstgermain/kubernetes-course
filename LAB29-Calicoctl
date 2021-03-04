@@ -17,6 +17,29 @@ kubectl get namespaces
  vim your file, then delete the data with the following keyboard strokes.
  # First run dShiftg. Then run dgg to delete everything from your cursor 
  #to the top.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: sise-deploy
+spec:
+ replicas: 2
+ selector:
+   matchLabels:
+     app: sise
+ template:
+   metadata:
+     labels:
+       app: sise
+   spec:
+     containers:
+     - name: sise
+       image: mhausenblas/simpleservice:0.5.0
+       ports:
+       - containerPort: 9876
+       env:
+       - name: SIMPLE_SERVICE_VERSION
+         value: "1.0"
 
  #Note that the simpleservice container is designed as a testing container, 
  #and has the following paths available to retrieve information 
@@ -26,3 +49,52 @@ kubectl get namespaces
 #inside of our sise-deploy deployment via their label app: sise. Once running,
 # we will be able to target this simpleservice and observe how it is acting 
 #via the command calicoctl.
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simpleservice
+spec:
+  ports:
+    - port: 80
+      targetPort: 9876
+  selector:
+    app: sise
+
+#Now create both the Service and the Deployment at the same time. Sometimes
+ #it is nice and makes sense when you have multiple files that need created, and each has a relation to the other.
+
+kubectl apply -f objets-cours/sise-svc.yaml -f objets-cours/sise-deploy.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
