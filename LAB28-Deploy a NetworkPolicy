@@ -1,0 +1,35 @@
+
+Create a network policy to stop all intrapod communication.
+Create a network policy that allows a front-end pod to communicate with a back-end pod.
+
+Network Policies help to give a Kubernetes Administrator control over 
+the intricate Pod intranetworking. This is incredibly useful in assuring 
+that your cluster is secure and cannot be attacked
+
+urther Reading:
+
+https://kubernetes.io/docs/concepts/services-networking/network-policies/#prerequisites
+https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/
+https://docs.bitnami.com/kubernetes/how-to/secure-your-kubernetes-application-with-networkpolicies/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
