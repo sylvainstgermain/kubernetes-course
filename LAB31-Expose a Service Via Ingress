@@ -36,5 +36,102 @@ ingress-nginx   ingress-nginx      NodePort    172.16.3.225   <none>        80:3
 kube-system     kube-dns           ClusterIP   172.16.3.10    <none>        53/UDP,53/TCP,9153/TCP       3d1h
 test            nginx              ClusterIP   172.16.3.162   <none>        80/TCP                       6h3m
 
+#heck that you've successfully installed the Nginx ingress controller
+kubectl get pods --all-namespaces -l app.kubernetes.io/name=ingress-nginx --watch
 
 
+kubectl apply -f objets-cours/apple.yaml
+kubectl apply -f objets-cours/banana.yaml
+
+#With our services running, what remains is for us to create an Ingress manifest to expose them. Use the following:
+vim fruit_ingress.yml
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+        - path: /apple
+          backend:
+            serviceName: apple-service
+            servicePort: 5678
+        - path: /banana
+          backend:
+            serviceName: banana-service
+            servicePort: 5678
+
+#Now create your Ingress resource.
+kubectl create -f objets-cours/fruit_ingress.yaml
+
+he next thing we need to do is configure one of our nodes to act as the point of external contact. This could be done behind a LoadBalancer, or as a specific public IP address. For our setup, we will keep it inside of our 10.* network. Find the address of the Ingress resource.
+
+kubectl get ingress -o wide
+NAME              CLASS    HOSTS   ADDRESS        PORTS   AGE
+example-ingress   <none>   *       172.16.3.225   80      20s
+
+We now need to get the nodeport associated with port 443. This is shown to the right of 443: after issuing the command below.
+
+kubectl get service -n ingress-nginx
+NAME            TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE
+ingress-nginx   NodePort   172.16.3.225   <none>        80:32145/TCP,443:32468/TCP   7m6
+
+Setup a reverse proxy on your beachhead that will service inbound requests to the aux1 student path. Notice we are load balancing the request across all nodes in the cluster and targeting the ingress service. Ensure you correctly replace and assign <NODE_PORT> for the https (443) node port assigned to the ingress service.
+sudo vim /etc/nginx/sites-enabled/fruit-ingress
+
+upstream nodes {
+  server node-1:<NODE_PORT>;
+  server node-2:<NODE_PORT>;
+  server node-3:<NODE_PORT>;
+}
+
+server {
+
+  listen 2224 default_server;
+  listen [::]:2224 default_server;
+
+  location / {
+    proxy_pass https://nodes;
+  }
+}
+
+#Finally, we need to test and reload the local host's nginx configuration.
+sudo nginx -t
+sudo nginx -s reload
+
+#Success! You should now be able to access your Pods.
+curl http://localhost:2224/apple
+curl http://localhost:2224/banana
+
+#You should also now be able to access your Pods via using your channel changer to select the appropriate auxiliary port view that is now being served (apple and/or banana)
+
+#IMPORTANT: When you are finished with this lab, fruit-ingress will continue to occupy port 2224, preventing you from using it in future labs. We must delete the "sites-enabled" document for nginx.
+sudo rm /etc/nginx/sites-enabled/fruit-ingress*
+sudo systemctl restart nginx
+
+====================================================
+Rocket
+
+Rocket Science lab:
+Now you are going to configure a second path to the ingress service. This path will act as if it were a BGP route that would be configured for access to the ClusterIP of the service. Examples of this type of deployment and scaling model are documented in the MetalLB and Calico projects. For now, however, we are going to manually provision on our beachhead what BGP would provide throughout a BGP routed network. To say that BGP is an elegant and truly scalable solution to ingress is an understatement!
+
+Identify with kubectl commands your ingress services ClusterIP 
+and all the ip addresses of the nodes in your cluster.
+
+#Grab your node IPs with the following command (you'll need them in the next step):
+kubectl get nodes -o wide
+NAME     STATUS   ROLES    AGE    VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION       CONTAINER-RUNTIME
+node-1   Ready    <none>   3d1h   v1.18.0   10.3.188.245   <none>        Ubuntu 18.04.5 LTS   4.15.0-136-generic   containerd://1.3.3
+node-2   Ready    <none>   3d1h   v1.18.0   10.9.54.194    <none>        Ubuntu 18.04.5 LTS   4.15.0-136-generic   containerd://1.3.3
+node-3   Ready    <none>   3d1h   v1.18.0   10.8.79.30     <none>        Ubuntu 18.04.5 LTS   4.15.0-136-generic   containerd://1.3.3
+
+???? Cluster IP
+#Create an equal cost path to that ClusterIP to all nodes.
+sudo ip route add <CLUSTER_IP>/32 \
+    nexthop via 10.3.188.245 weight 1 \
+    nexthop via 10.9.54.194 weight 1 \
+    nexthop via 10.8.79.30 weight 1
