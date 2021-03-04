@@ -13,9 +13,10 @@ https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/
 https://docs.bitnami.com/kubernetes/how-to/secure-your-kubernetes-application-with-networkpolicies/
 
 
+kubectl config current-context
 
-
-
+#Confirm namespace test exists.
+kubectl get namespaces
 
 
 
