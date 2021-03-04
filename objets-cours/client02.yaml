@@ -2,10 +2,10 @@
 kind: Pod   # create a Pod
 apiVersion: v1
 metadata:
-  name: client   # name of pod
+  name: client02   # name of pod
   namespace: test  # namespace we will operate in
   labels:
-    run: client   # <-- run: client is a key/value applied to this machine
+    run: client02   # <-- run: client is a key/value applied to this machine
 spec:
   containers:
   - name: busybox
