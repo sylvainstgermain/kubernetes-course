@@ -72,11 +72,21 @@ Exposing Exteranl IP addresses - https://kubernetes.io/docs/tutorials/stateless-
 Basics of Exposing Services - https://kubernetes.io/docs/tutorials/kubernetes-basics/expose/expose-intro/
 Understanding Services - https://kubernetes.io/docs/tasks/access-application-cluster/service-access-application-cluster/
 
+You made this file in a previous lab, but let's make sure you didn't make any errors in creating it. Run the following command to download the file nginx.conf.
+wget https://static.alta3.com/projects/k8s/nginx.conf.final -O ./nginx.conf
 
+n a previous lab, we created an nginx.conf config map, but it has changed since then. So, delete the old map.
+kubectl delete configmap nginx-conf
 
+#Now, recreate an updated nginx-conf configmap
+kubectl create configmap nginx-conf --from-file=objets-cours/nginx.conf
 
-
-
+What is a configMap? We want this new configuration file to be 'injected'
+ into our pod at the time it is created. This behavior takes the place 
+ of creating a new image with the proper configuration file in place, as 
+ well as manually copying the new file into the pod. First create a 
+ ConfigMap that includes your configuration data, then describe the config 
+ map within the manifest.
 
 
 
