@@ -1,0 +1,23 @@
+------------------------------------------------------
+kubectl apply -f objets-cours/...
+kubectl config current-context
+kubectl delete all --all
+
+#Confirm namespace test exists.
+kubectl get namespaces
+---------------------------------------------------
+Lab Objective
+Create Services containing the endpoints of Pods. Create Ingress resource to expose Services.
+
+In Kubernetes, an Ingress is a special type of service that allows access to your Kubernetes services from outside the Kubernetes cluster. You configure access by creating a collection of rules that define which inbound connections reach which other services within the cluster.
+
+This lets you consolidate your routing rules into a single resource. For example, you might want to send requests to example.com/api/v1/ to an api-v1 service, and requests to example.com/api/v2/ to the api-v2 service. With an Ingress, you can easily set this up without creating multiple LoadBalancers or NodePorts. Both LoadBalancerrs and NodePorts can represent finite resources and costs depending on the hosting and network providers of your Kubernetes cluster.
+
+NodePort and LoadBalancer let you expose a service by specifying that value in the service’s type. Ingress, on the other hand, is a completely independent resource to your service. You can declare, create, modify, and destroy it separately to your services. This makes it decoupled and isolated from the services you want to expose. It also helps you to consolidate routing rules into one place.
+
+One downside is that you will need to configure an Ingress Controller for your cluster. But that’s pretty easy— in this example, we’ll use the Nginx Ingress Controller.
+
+#Installing the Nginx Ingress Controller may vary depending on the provider 
+#that you are using (AWS, GCE-GKE, Azure... read about them here: 
+#https://kubernetes.github.io/ingress-nginx/deploy/ - but one thing that 
+#everyone must do first is the "mandatory installation."
