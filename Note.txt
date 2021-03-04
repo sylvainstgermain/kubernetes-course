@@ -837,6 +837,29 @@ Ingress and Ingress controller
 * Not natively install 
 
 
+=============================================
+Multi container
+=============================================
+
+sidecar
+    adapter         : ex: convert to JSON and pass to the apps (OUT -> IN)
+    ambassador      : opposite of adapter (OUT->IN) ex: export to JSON
+    Reverse proxy   : ex:nginx able to set path /static redirect to inex.html
+                      /webby to pass in another container in the same pod
+
+                      POD share : IPC, NETWORK, hostname
+
+Sidecar -> service mesh
+
+
+
+ISTIO :
+Place service mesh to a cluster level
+Go inside every pod of the cluster and place a container inside of it
+proxy inside the pods
+
+prometheus also put a container in every pods
+
 
 
 

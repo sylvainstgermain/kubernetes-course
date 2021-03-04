@@ -1,0 +1,21 @@
+------------------------------------------------------
+kubectl apply -f objets-cours/...
+kubectl config current-context
+kubectl delete all --all
+
+#Confirm namespace test exists.
+kubectl get namespaces
+---------------------------------------------------
+Lab Objective
+CKAD Objective
+Understand Multi-Container Pod design patterns (e.g. ambassador, adapter, sidecar)
+Lab Objective
+Build a composite pod
+In this lab you'll learn to deploy two composite pods (pods with multiple containers).
+
+The first answers the question, Whats a simple method for tracking network traffic within a Pod?". To capture traffic inside our pod, we'll deploy a second container within our pod running TCPdump. This technique can be applied to almost any pod deployment for capturing traffic.
+
+The second combines our "webby" container with an "nginx" container. In subsequent labs, we'll include a 3rd container in this pod arrangement to augment our website with a blogging service.
+
+Funny XKCD comic "sidecar" design: https://imgs.xkcd.com/comics/containers.png
+---------------------------------------------------------
