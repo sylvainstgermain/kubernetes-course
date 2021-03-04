@@ -1,0 +1,17 @@
+------------------------------------------------------
+kubectl apply -f objets-cours/...
+kubectl config current-context
+kubectl delete all --all
+
+#Confirm namespace test exists.
+kubectl get namespaces
+---------------------------------------------------
+
+
+
+
+
+
+
+
+

@@ -7,16 +7,18 @@ kubectl delete all --all
 
 #Confirm namespace test exists.
 kubectl get namespaces
+kubectl get ns
 
-#irst, we will define a Deployment named sise-deploy. We are doing this 
-#in order to have a target to use while we are testing our routing. 
-#This ultimately will be an endpoint for the service that we define 
-#in the next step.
 
-#You may already have a file with the same name but different data. If so,
- vim your file, then delete the data with the following keyboard strokes.
- # First run dShiftg. Then run dgg to delete everything from your cursor 
- #to the top.
+# First, we will define a Deployment named sise-deploy. We are doing this 
+# in order to have a target to use while we are testing our routing. 
+# This ultimately will be an endpoint for the service that we define 
+# in the next step.
+
+# You may already have a file with the same name but different data. If so,
+# vim your file, then delete the data with the following keyboard strokes.
+# First run dShiftg. Then run dgg to delete everything from your cursor 
+# to the top.
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -304,11 +306,48 @@ An AS is a connected group of one or more IP prefixes run by one
 or more network operators which has a SINGLE and CLEARLY DEFINED
 routing policy.
 
+#Edit the bgpconfig file.
+vim bgpconfig.yml
+---
+apiVersion: projectcalico.org/v3
+kind: BGPConfiguration
+metadata:
+  name: default
+spec:
+  asNumber: "65103"
 
+In order to use calicoctl to read information in, it will need to be piped
+ in to stdin. Run the following command to apply our new ASN.
 
+calicoctl apply -f - < objets-cours/bgpconfig.yaml
+Unable to use a TTY - input is not a terminal or the right kind of file
+Successfully applied 1 'BGPConfiguration' resource(s)
 
+#Now use calicoctl to view the ASNumber.
 
+calicoctl get bgpconfiguration default
+NAME      LOGSEVERITY   MESHENABLED   ASNUMBER   
+default                 -             65103   
 
+#Now let's take a look at the yaml for the bgpconfiguration.
+calicoctl get bgpconfiguration default -o yaml
+apiVersion: projectcalico.org/v3
+kind: BGPConfiguration
+metadata:
+  creationTimestamp: "2021-03-04T14:49:49Z"
+  name: default
+  resourceVersion: "651622"
+  uid: aaa420a1-6831-45bf-bc3f-abb4906e1684
+spec:
+  asNumber: 65103
+
+#Verify that the new ASN got applied to all of the nodes.
+
+calicoctl get nodes -o wide
+NAME     ASN       IPV4              IPV6   
+node-1   (65103)   10.3.188.245/12          
+node-2   (65103)   10.9.54.194/12           
+node-3   (65103)   10.8.79.30/12  
 
 
 

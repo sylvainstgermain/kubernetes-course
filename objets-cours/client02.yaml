@@ -17,3 +17,5 @@ spec:
     args:
     - sleep
     - "10000"
+
+#kubectl label pods client02 -n test --overwrite run=client

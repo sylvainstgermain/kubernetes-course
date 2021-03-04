@@ -67,7 +67,6 @@ spec:
     - "10000"
 
 
-
 kubectl create -f objets-cours/client02.yaml
 
 kubectl get pods
@@ -95,7 +94,7 @@ kubectl expose pod nginx --namespace=test  --port=80
 #Once the client.yaml file is applied, you should be able to access the pod 
 # and receive back the NGINX welcome page using the following command.
 
-kubectl exec -n test client  -- wget -T 2 -q nginx -O -
+kubectl exec -n test client -- wget -T 2 -q nginx -O -
 
 ...
 <title>Welcome to nginx!</title>
@@ -121,6 +120,13 @@ spec:
   policyTypes:
   - Ingress
   - Egress
+
+
+kubectl get pods -o wide -n test
+AME       READY   STATUS    RESTARTS   AGE    IP               NODE     NOMINATED NODE   READINESS GATES
+client     1/1     Running   0          125m   192.168.247.39   node-2   <none>           <none>
+client02   1/1     Running   0          122m   192.168.84.159   node-1   <none>           <none>
+nginx      1/1     Running   0          121m   192.168.84.160   node-1   <none>           <none>
 
 #Next, let's create this network policy.
 kubectl apply -f objets-cours/network-policy.yaml

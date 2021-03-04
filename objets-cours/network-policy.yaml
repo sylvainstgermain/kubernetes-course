@@ -6,7 +6,7 @@ metadata:
   name: netpol-1
   namespace: test
 spec: # bloc qui permet de laisser passer le container client
-  ingress:
+  ingress: # Ingress behaviour
   - from:
     - podSelector:
         matchLabels:
@@ -19,7 +19,7 @@ spec: # bloc qui permet de laisser passer le container client
 
 # Bloque tout
 #  spec:
-#  podSelector: {}
+#  podSelector: {}  # no pods !!!
 #  policyTypes:
-#  - Ingress
-#  - Egress
+#  - Ingress   # traffic IN
+#  - Egress    # traffic OUT

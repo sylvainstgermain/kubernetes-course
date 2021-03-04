@@ -749,5 +749,38 @@ https://kubernetes.io/docs/concepts/storage/storage-classes/#provisioner
 
 Le storage PV faire attention sur quel noeud il est fait !!!
 
+CEPHFS ou RBD  -> need both
+microservices pa
 
+
+==================================================
+NETWORKS (4 hops !!!)
+==================================================
+1# IP Cluster (loadbalancer) external facing
+kubectl get services -o wide
+load balance to nodes
+
+2# IP Nodes
+kubectl get nodes -o wide
+theres a Kubeproxy that load balance between pod
+
+3# IP of service
+kubectl describe svc -n test
+   - clusterIP
+   -
+4# POD IP
+
+30000-32767 -> Node port acces to serivce a pointer to services
+
+INGRESS- incoming connections to the Pod 
+EGRESS- outgoing connections from the Pod 
+REPLICAS- identical clones of a Pod 
+ENDPOINT- the IP address of a Pod 
+SERVICE- created when a set of Pods are exposed; it is a pointer to all of those Pods' 
+IP addresses. 
+LOAD BALANCER- used to balance traffic round-robin across all nodes in the cluster. 
+NODE IP- the IP address of a node. 
+NODE PORT- a port that is opened on every node of your cluster, allowing access to the service that you need. Always between 30000-32767. 
+CLUSTER IP SUBNET- all the ClusterIP services in the cluster. 
+KUBE PROXY- located on every node; interprets network rules that allow access to the Cluster IP. Also enables load-balancing across replicated Pods.
 
