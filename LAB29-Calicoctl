@@ -1,9 +1,9 @@
 You can read more about Project Calico here: https://docs.projectcalico.org/introduction/
 
 
-kubectl apply -f objets-cours/network-policy.yaml
-
+kubectl apply -f objets-cours/...
 kubectl config current-context
+kubectl delete all --all
 
 #Confirm namespace test exists.
 kubectl get namespaces
@@ -17,3 +17,12 @@ kubectl get namespaces
  vim your file, then delete the data with the following keyboard strokes.
  # First run dShiftg. Then run dgg to delete everything from your cursor 
  #to the top.
+
+ #Note that the simpleservice container is designed as a testing container, 
+ #and has the following paths available to retrieve information 
+ #from: /health, /info, and /env.
+
+#Next, let's create a manifest for a Service that will select all the pods 
+#inside of our sise-deploy deployment via their label app: sise. Once running,
+# we will be able to target this simpleservice and observe how it is acting 
+#via the command calicoctl.
