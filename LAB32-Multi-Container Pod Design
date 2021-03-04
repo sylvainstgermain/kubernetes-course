@@ -45,6 +45,81 @@ pod "netgrab" deleted
 
 #Once netgrab is deleted, type 'exit' to leave the split screen.
 
+#Let's work on combining our website container with an NGINX container.
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webby-nginx-combo
+  labels:
+    app: nginx-configured
+spec:
+  containers:
+  - name: webby
+    image: bchd.registry/alta3-webby
+    ports:
+    - containerPort: 8888          
+  - name: nginx
+    image: nginx:1.18.0
+    ports:
+      - containerPort: 80
+      - containerPort: 443
+    volumeMounts:
+    - name: nginx-proxy-config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+    - name: my-index-file
+      mountPath: /var/www/index.html
+      subPath: index.html
+    - name: static-demo-data
+      mountPath: /var/www/static/nginx.txt
+      subPath: nginx.txt
+    - name: top-secret-keys
+      mountPath: /etc/nginx/ssl
+      readOnly: true   
+  volumes:
+  - name: nginx-proxy-config
+    configMap:
+      name: nginx-conf
+  - name: my-index-file
+    configMap:
+      name: index-file
+  - name: static-demo-data
+    configMap:
+      name: nginx-txt
+  - name: top-secret-keys
+    secret:
+      secretName: webby-keys  
+
+vim nginx-conf.yaml
+
+
+#It is possible you have an old configMap called nginx-conf from a previous lab. Run the following command to remove it.
+kubectl delete configmap nginx-conf
+
+#You apply your new configMap
+kubectl create -f
+
+#Start the new composite pod.
+kubectl create -f objets-cours/webby-nginx-combo.yaml
+
+#It is possible you still have some forwarding information laying around from a previous lab. <
+#Let's get rid of that config. If this command fails, no big deal.
+sudo rm /etc/nginx/sites-enabled/fruit-ingress
+
+#Port-forward the composite pod.
+kubectl port-forward webby-nginx-combo 2224:80 --address 0.0.0.0
+
+
+
+
+
+
+
+
+
+
+
 
 
 
