@@ -21,20 +21,94 @@ kubectl get namespaces
 #Create a pod manifest to deploy client. If you never worked with BusyBox 
 #then you should take a few minutes to read about 
 #the project: https://www.busybox.net/about.html
+---
+kind: Pod   # create a Pod
+apiVersion: v1
+metadata:
+  name: client   # name of pod
+  namespace: test  # namespace we will operate in
+  labels:
+    run: client   # <-- run: client is a key/value applied to this machine
+spec:
+  containers:
+  - name: busybox
+    image: busybox    # https://www.busybox.net/about.html
+    resources:
+      requests:
+        cpu: "300m"   # slice of core
+        memory: 128Mi   # Mb of RAM
+    args:
+    - sleep
+    - "10000"
+
+
 kubectl create -f objets-cours/client.yaml
 
 #Now, let's create another client in the namespace test. 
 #Name this one client02, and give the label run: client02.
+---
+kind: Pod   # create a Pod
+apiVersion: v1
+metadata:
+  name: client02   # name of pod
+  namespace: test  # namespace we will operate in
+  labels:
+    run: client02   # <-- run: client is a key/value applied to this machine
+spec:
+  containers:
+  - name: busybox
+    image: busybox    # https://www.busybox.net/about.html
+    resources:
+      requests:
+        cpu: "300m"   # slice of core
+        memory: 128Mi   # Mb of RAM
+    args:
+    - sleep
+    - "10000"
 
 
 
+kubectl create -f objets-cours/client02.yaml
 
+kubectl get pods
 
+# Create a pod in the test namespace by using the kubectl run command.
+# Remember, the earlier labs showed how to fix this issue with an 
+# extra option.
+kubectl run --namespace=test  nginx --image=nginx
 
+#Check on the Pod within the test namesapce
+kubectl describe pod nginx --namespace=test
 
+#Verify that the Pods have been successfully deployed. You should see 
+#client, client02, and an nginx pod.
 
+kubectl get pods --namespace=test
+NAME       READY   STATUS    RESTARTS   AGE
+client     1/1     Running   0          5m36s
+client02   1/1     Running   0          2m55s
+nginx      1/1     Running   0          88s
 
+#Expose the nginx Pod through a service using the kubectl expose command:
+kubectl expose pod nginx --namespace=test  --port=80
 
+#Once the client.yaml file is applied, you should be able to access the pod 
+# and receive back the NGINX welcome page using the following command.
+
+kubectl exec -n test client  -- wget -T 2 -q nginx -O -
+
+...
+<title>Welcome to nginx!</title>
+...
+
+#Next, go ahead and try to achieve the same connectivity from client02.
+kubectl exec -n test client02  -- wget -T 2 -q nginx -O -
+...
+<title>Welcome to nginx!</title>
+...
+
+#Now we will create a default deny policy for the namespace test. 
+#This will allow us stop communication between pods.
 
 
 
