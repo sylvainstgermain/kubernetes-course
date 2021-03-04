@@ -18,9 +18,8 @@ CHALLENGE # 3: Add the Ghost Blog as a Sidecar to your Deployment
 ----------------------------
 Challenge 1
 ----------------------------
-
-Start with that composite pod you created and modify it to become a deployment. Below is the 
-original composite pod that you need to edit to become a deployment.
+Start with that composite pod you created and modify it to become a deployment. 
+Below is the  original composite pod that you need to edit to become a deployment.
 
 #Modify the following Pod into a Deployment.
 vim webby-nginx-combo.yaml￼
@@ -63,10 +62,10 @@ spec:
   - name: static-demo-data
     configMap:
       name: nginx-txt
-When you have the deployment designed, run the following tests...
 
 
-kubectl create -f webby-nginx-combo.yaml
+# When you have the deployment designed, run the following tests...
+kubectl create -f objets-cours/webby-nginx-combo.yaml
 kubectl get deployment
 kubectl get pods
 
