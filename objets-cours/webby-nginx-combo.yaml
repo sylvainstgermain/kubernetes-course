@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+apiVersion: apps/v1  ############## DEPLOY LEVEL
 kind: Deployment
 metadata:
   name: nginx-webby-combo
@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: nginx-webby-combo
-  template:
+  template: ################## POD LEVEL
     metadata:
       name: nginx-webby-combo
       labels:

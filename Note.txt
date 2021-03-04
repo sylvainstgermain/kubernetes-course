@@ -861,6 +861,30 @@ proxy inside the pods
 prometheus also put a container in every pods
 
 
+=============================================
+Taints and Tolerations
+=============================================
+
+# taint repousse les app
+                            NEW key value pair kind of taint
+kubectl taint nodes node-01 app=new-app:NoSchedule 
+
+type of taint
+  * NoSchedule        # not on the node except it has the matching toleration
+  * PreferNoSchedule  # Try to avoid, but not required
+  * NoExecute         # Eviceted if no toleration
+
+  Peut evacuer des PODS pour la maintenance d'un noeud
+
+  Voir "built-in taints" pour les conditions - system generated
+
+Tolaration is built in a manifest
+
+Possible remove taint from nodes
+kubectl describe nodes
+kubectl taint nodes node-01 app=new-app:NoSchedule 
+
+
 
 
 
