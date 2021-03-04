@@ -1,0 +1,19 @@
+You can read more about Project Calico here: https://docs.projectcalico.org/introduction/
+
+
+kubectl apply -f objets-cours/network-policy.yaml
+
+kubectl config current-context
+
+#Confirm namespace test exists.
+kubectl get namespaces
+
+#irst, we will define a Deployment named sise-deploy. We are doing this 
+#in order to have a target to use while we are testing our routing. 
+#This ultimately will be an endpoint for the service that we define 
+#in the next step.
+
+#You may already have a file with the same name but different data. If so,
+ vim your file, then delete the data with the following keyboard strokes.
+ # First run dShiftg. Then run dgg to delete everything from your cursor 
+ #to the top.

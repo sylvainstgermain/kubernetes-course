@@ -139,7 +139,7 @@ kubectl edit netpol netpol-1 -n test
 
 #Near the bottom the file, you'll find the word spec: (left justified). 
 #Replace the word spec: and all of the code below it, with the snippet 
-#shown below.
+#shown below. 
 spec:
   ingress:
   - from:
@@ -151,3 +151,14 @@ spec:
       run: nginx
   policyTypes:
   - Ingress
+
+kubectl apply -f objets-cours/network-policy.yaml
+
+#Verify that you have allowed traffic to flow again between 
+#client and nginx.
+kubectl exec -n test client  -- wget -T 2 -q nginx -O -
+
+#Next, also verify that client02 DOES NOT HAVE connectivity to nginx.
+kubectl exec -n test client02  -- wget -T 2 -q nginx -O -
+get: download timed out
+command terminated with exit code 1
