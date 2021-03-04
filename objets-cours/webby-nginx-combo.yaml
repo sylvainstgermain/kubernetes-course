@@ -2,20 +2,20 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: webby-nginx-combo
+  name: nginx-webby
   labels:
-    app: nginx-configured
+    app: nginx
 spec:
   containers:
   - name: webby
     image: bchd.registry/alta3-webby
     ports:
-    - containerPort: 8888          
+    - containerPort: 8888
   - name: nginx
     image: nginx:1.18.0
     ports:
-      - containerPort: 80
-      - containerPort: 443
+    - containerPort: 80
+    - containerPort: 443
     volumeMounts:
     - name: nginx-proxy-config
       mountPath: /etc/nginx/nginx.conf
@@ -26,9 +26,6 @@ spec:
     - name: static-demo-data
       mountPath: /var/www/static/nginx.txt
       subPath: nginx.txt
-    - name: top-secret-keys
-      mountPath: /etc/nginx/ssl
-      readOnly: true   
   volumes:
   - name: nginx-proxy-config
     configMap:
@@ -39,6 +36,3 @@ spec:
   - name: static-demo-data
     configMap:
       name: nginx-txt
-  - name: top-secret-keys
-    secret:
-      secretName: webby-keys  

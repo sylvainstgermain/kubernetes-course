@@ -1,0 +1,389 @@
+------------------------------------------------------
+kubectl apply -f objets-cours/...
+kubectl config current-context
+kubectl delete all --all
+
+#Confirm namespace test exists.
+kubectl get namespaces
+---------------------------------------------------
+Lab Objective
+In this lab, you will be reviewing your knowledge of Pods, Deployments, ConfigMaps, Volumes, Labels, Secrets, and even a little NGINX configuration. This lab is broken into three separate challenges as follows:
+
+CHALLENGE # 1: Convert your composite pod into a deployment
+CHALLENGE # 2: Build a Ghost Blog
+CHALLENGE # 3: Add the Ghost Blog as a Sidecar to your Deployment
+
+
+
+----------------------------
+Challenge 1
+----------------------------
+
+Start with that composite pod you created and modify it to become a deployment. Below is the 
+original composite pod that you need to edit to become a deployment.
+
+#Modify the following Pod into a Deployment.
+vim webby-nginx-combo.yaml￼
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-webby
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: webby
+    image: bchd.registry/alta3-webby
+    ports:
+    - containerPort: 8888
+  - name: nginx
+    image: nginx:1.18.0
+    ports:
+    - containerPort: 80
+    - containerPort: 443
+    volumeMounts:
+    - name: nginx-proxy-config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+    - name: my-index-file
+      mountPath: /var/www/index.html
+      subPath: index.html
+    - name: static-demo-data
+      mountPath: /var/www/static/nginx.txt
+      subPath: nginx.txt
+  volumes:
+  - name: nginx-proxy-config
+    configMap:
+      name: nginx-conf
+  - name: my-index-file
+    configMap:
+      name: index-file
+  - name: static-demo-data
+    configMap:
+      name: nginx-txt
+When you have the deployment designed, run the following tests...
+
+
+kubectl create -f webby-nginx-combo.yaml
+kubectl get deployment
+kubectl get pods
+
+sudo kubectl port-forward <choose-from-selection-of-kubectl-get-pods-from-above> 2224:80 --address=0.0.0.0 If that does not work and you get an error, try using your aux2 port: 2225 instead. The GIF below will demonstrate this method.
+
+# Use your channel changer to select the appropriate auxiliary port view now being served 
+# which is "aux1".
+
+# Cancel the port forward
+kubectl delete deployment nginx-webby
+
+￼
+------------------------
+Challenge 2
+------------------------
+
+* Deployment of Ghost with Kubernetes
+* Ghost is a popular blogging engine with a clean interface written in JS. It can either use a
+* file-based SQLite database or MySQL for storage.
+Build a ghost blog in your K8s environment.
+* Create the ghost.yaml Deployment manifest.
+
+
+vim ghost.yaml￼
+￼
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog
+  labels:
+    app: blog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blog
+  template:
+    metadata:
+      labels:
+        app: blog
+    spec:
+      containers:
+      - name: blog
+        image: ghost:2.6-alpine
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 2368
+        env:
+        - name: url
+          value: http://localhost:2368/
+
+
+# Start the ghost container.
+kubectl apply -f ghost.yaml￼
+deployment "ghost" created
+
+# You need the unique ID of the pod you just created. Note the name of the pod blog- before
+# moving to the next step.
+kubectl get pods￼
+
+# Port-forward your ghost pod.
+kubectl port-forward blog-<pod-suffix> 2224:2368 --address=0.0.0.0￼
+
+# From your browser, access your ghost server using your channel changer to select aux1 to view 
+# the page that is now being served. You may need to put a single / in the aux1 navigation bar 
+# in order to make the "Ghost" blog service appear. If you get it correct, it will say "ghost"
+#  in all white across the top of the screen (on a black background).
+
+-----------------------------------------------------
+Challenge 3
+-----------------------------------------------------
+Add the Ghost container as a sidecar in your webby-nginx-combo.yaml. Then, configure NGINX to 
+serve ghost on the /blog path.
+
+GOOD LUCK! This is a real challenge. Try to do it without any help. Answers are provided below if necessary.
+
+
+
+
+
+
+Challenge Answers
+The Deployment Manifest
+
+￼
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-webby
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-webby
+  template:
+    metadata:
+      name: nginx-webby
+      labels:
+        app: nginx-webby
+    spec:
+      containers:
+      - name: webby
+        image:  bchd.registry/alta3-webby
+        ports:
+        - containerPort: 8888
+      - name: nginx
+        image: nginx:1.18.0
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: nginx-proxy-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: my-index-file
+          mountPath: /var/www/index.html
+          subPath: index.html
+        - name: static-demo-data
+          mountPath: /var/www/static/nginx.txt
+          subPath: nginx.txt
+        - name: top-secret-keys
+          mountPath: /etc/nginx/ssl
+          readOnly: true
+      volumes:
+      - name: nginx-proxy-config
+        configMap:
+          name: nginx-conf
+      - name: my-index-file
+        configMap:
+          name: index-file
+      - name: static-demo-data
+        configMap:
+          name: nginx-txt
+      - name: top-secret-keys
+        secret:
+          secretName: webby-keys
+
+
+
+
+Challenge 3 Answers
+Create A New Deployment Manifest, with Ghost as a Sidecar
+
+First you will need to add in the ghost container to your existing Deployment manifest.
+
+student@bchd:~$ vim webby-nginx-combo.yaml￼
+
+￼
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-webby-combo
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-webby-combo
+  template:
+    metadata:
+      name: nginx-webby-combo
+      labels:
+        app: nginx-webby-combo
+    spec:
+      containers:
+      - name: webby
+        image: bchd.registry/alta3-webby
+        ports:
+        - name: web
+          containerPort: 8888
+          protocol: TCP
+      - name: blog
+        image: ghost:2.6-alpine
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 2368
+        env:
+        - name: url
+          value: http://localhost:2368/
+      - name: nginx
+        image: nginx:1.18.0
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: nginx-proxy-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: my-index-file
+          mountPath: /var/www/index.html
+          subPath: index.html
+        - name: static-demo-data
+          mountPath: /var/www/static/nginx.txt
+          subPath: nginx.txt
+      volumes:
+      - name: nginx-proxy-config
+        configMap:
+          name: nginx-conf
+      - name: my-index-file
+        configMap:
+          name: index-file
+      - name: static-demo-data
+        configMap:
+          name: nginx-txt
+
+
+Before creating your Deployment you will need to edit your nginx-conf to accomodate the new path. First step is to remove the old ConfigMap.
+
+student@bchd:~$ kubectl delete cm nginx-conf￼
+
+Next, we will update the nginx.conf file to be used as the new nginx-conf ConfigMap.
+
+student@bchd:~$ vim nginx.conf￼
+
+￼
+user  nginx;  
+worker_processes  1;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+events {
+    worker_connections  1024;
+}
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log  /var/log/nginx/access.log  main;
+    sendfile        on;     
+    keepalive_timeout  65;
+    server {
+        server_name  localhost;
+        listen 80;
+        root /var/www;
+
+        location / {
+        proxy_pass http://127.0.0.1:8888/;
+        }       
+
+        location /static {
+        autoindex on;
+        }       
+
+        location /blog { 
+        proxy_pass http://127.0.0.1:2368/;
+        }       
+
+    }
+}
+Next, create your nginx-conf ConfigMap again.
+
+student@bchd:~$ kubectl create cm nginx-conf --from-file=nginx.conf￼
+
+Now that you have prepared the ConfigMap appropriately, initiate your Deployment.
+
+student@bchd:~$ kubectl apply -f webby-nginx-combo.yaml￼
+
+Next, port-forward one of the Pods.
+
+student@bchd:~$ kubectl port-forward nginx-webby-combo-74f5794f75-t5hsh 2224:80 --address=0.0.0.0￼
+
+Now use your channel changer to select the appropriate auxiliary port view now being served. Test this by adding the following onto the suffix of your URL. Note you will need a trailing "/" for /blog/ and /static/.
+
+Webby: < no need too add anything here. just the plain old aux
+
+Static: /static/
+
+Ghost: /blog/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
