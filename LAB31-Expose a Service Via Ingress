@@ -21,3 +21,20 @@ One downside is that you will need to configure an Ingress Controller for your c
 #that you are using (AWS, GCE-GKE, Azure... read about them here: 
 #https://kubernetes.github.io/ingress-nginx/deploy/ - but one thing that 
 #everyone must do first is the "mandatory installation."
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml
+
+#Now use the yaml file specific to your provider (this lab is baremetal)
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/provider/baremetal/service-nodeport.yaml
+
+#Let's look at all of the services that are running on our cluster.
+kubectl get services --all-namespaces
+NAMESPACE       NAME               TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE
+default         kubernetes         ClusterIP   172.16.3.1     <none>        443/TCP                      5h39m
+default         nginx-configured   NodePort    172.16.3.209   <none>        80:31263/TCP                 158m
+default         simpleservice      ClusterIP   172.16.3.158   <none>        80/TCP                       5h35m
+ingress-nginx   ingress-nginx      NodePort    172.16.3.225   <none>        80:32145/TCP,443:32468/TCP   25s
+kube-system     kube-dns           ClusterIP   172.16.3.10    <none>        53/UDP,53/TCP,9153/TCP       3d1h
+test            nginx              ClusterIP   172.16.3.162   <none>        80/TCP                       6h3m
+
+
+
