@@ -88,6 +88,130 @@ What is a configMap? We want this new configuration file to be 'injected'
  ConfigMap that includes your configuration data, then describe the config 
  map within the manifest.
 
+ wget https://static.alta3.com/projects/k8s/index.html2 -O ./index.html
+kubectl create configmap index-file --from-file=objets-cours/index.html 
 
+#Verify all 3 ConfigMaps are loaded.
+kubectl get cm
 
+#Check to see what pods are currently running.
+kubectl get pods
+
+#Clean up your environment by deleting the running pods.
+
+#Create the pod.
+---
+apiVersion: v1   # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#_v1_podspec
+kind: Pod                      # MUST - create a Pod resource
+metadata:                      # MUST - metadata.name provides the 'name' for the resource
+  name: nginx-configured       # MUST - name of the resource
+  labels:                      # OPTIONAL (best practice) - allows manipulation of resource by label
+    app: nginx-configured      # OPTIONAL - example of a key: value key pair
+spec:                          # MUST - what you want to build
+  containers:                  # MUST - describe 1 or more containers within the pod
+  - name: nginx                # MUST - name of the container within the pod
+    image: nginx:1.18.0         # MUST - image nginx and version 1.18.0 from hub.docker.com
+    ports:                     # exposes ports on the pod
+    - name: chris              # name of mapped port (could also be Tim, or pinecone)
+      containerPort: 80        # exposed port
+    volumeMounts:                     # describes where your volumes will be availabe within the container
+    - name: nginx-proxy-config        # matches spec.volumes[0].name
+      mountPath: /etc/nginx/nginx.conf  # this is WHERE it will appear inside of the container
+      subPath: nginx.conf             # required to overwrite a file that is already within the container
+    - name: my-index-file             # matches spec.volumes[1].name
+      mountPath: /var/www/index.html
+      subPath: index.html
+    - name: static-demo-data          # matches spec.volumes[2].name
+      mountPath: /var/www/static/nginx.txt
+      subPath: nginx.txt
+  volumes:  
+  - name: nginx-proxy-config      # matches spec.volumeMounts[0].name
+    configMap:
+      name: nginx-conf            # name of a configMap
+  - name: my-index-file           # matches spec.volumeMounts[1].name
+    configMap:
+      name: index-file            # name of a configMap
+  - name: static-demo-data        # matches spec.volumeMounts[2].name
+    configMap:
+      name: nginx-txt             # name of a configMap
+
+kubectl apply -f objets-cours/nginx-configured.yaml
+
+# Confirm which services are currently running. YOU MAY NOT HAVE ANY/ALL 
+OF THESE SERVICES.
+
+kubectl get services
+NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+kubernetes      ClusterIP   172.16.3.1     <none>        443/TCP   179m
+simpleservice   ClusterIP   172.16.3.158   <none>        80/TCP    176m
+
+#Expose the pod.
+kubectl expose pod/nginx-configured --type="NodePort" --port 80
+
+#Confirm that the new service has been added to the list of services.
+kubectl get services | grep nginx
+nginx-configured   NodePort    172.16.3.209   <none>        80:31263/TCP   19s
+
+#Run the describe services command to see what the output looks like.
+kubectl describe services/nginx-configured
+Name:                     nginx-configured
+Namespace:                default
+Labels:                   app=nginx-configured
+Annotations:              <none>
+Selector:                 app=nginx-configured
+Type:                     NodePort
+IP:                       172.16.3.209
+Port:                     <unset>  80/TCP
+TargetPort:               80/TCP
+NodePort:                 <unset>  31263/TCP
+Endpoints:                192.168.247.41:80
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+
+#Get your test pod's node port and store it in an environmental variable called NODE_PORT
+export NODE_PORT=$(kubectl get services/nginx-configured -o go-template='{{(index .spec.ports 0).nodePort}}')
+
+#ervices/nginx-configured -o go-template='{{(index .spec.ports 0).nodePort}}'
+kubectl describe pod nginx-configured | grep "Node:\|IP:"
+ode:         node-2/10.9.54.194
+IP:           192.168.247.41
+  IP:  192.168.247.41
+
+echo Your NODE_PORT = $NODE_PORT
+Your NODE_PORT = 31263
+#he following command will curl node-1 on your service's nodeport.
+curl node-1:$NODE_PORT/static/nginx.txt
+
+Answer the following questions:
+
+Question: What node is your pod actually running on?
+Answer: kubectl get pods -o wide or kubectl describe pods can help you find those.
+Question: If you curl the service's NodePort on the nodes that are not hosting the pod, will you STILL get a response?
+Answer: Yes- the last few lab directions show you what happens.
+Question: What is the IP of each node? (node-1, node-2, node-3)?
+Answer: kubectl describe nodes | grep IP should do the trick!
+Question: If you ping node-1, node-2, and node-3 does it resolve to the expected IP address?
+Answer: It should resolve correctly.
+Question: What TCP socket would you curl to test if you can access your service at node-1?
+Answer: The one that is listed as the NodePort.
+Question: What TCP socket would you curl to test if you can access your service at node-2?
+Answer: Same as answer 5.
+Question: What TCP socket would you curl to test if you can access your service at node-3?
+Answer: Same as answer 5.
+Do NOT proceed without answering all of the questions above.
+
+The following command will curl node-1 on your service's nodeport.
+
+student@bchd:~$ curl node-1:$NODE_PORT/static/nginx.txt￼
+
+If the above command fails, see if your pod is running with "kubect get pods". If the pod is failing to come up, delete it with "kubectl delete -f nginx-configured.yaml". Next, check to ensure your configMaps are in place with "kubect get cm". If you do not have all 3 config maps, or if they were made in correctly, your Pod will fail to boot. To fix, try deleting all of your configmaps, recreating them, and then recreating your pod.
+
+The following command will curl node-2 on your service's nodeport.
+
+student@bchd:~$ curl node-2:$NODE_PORT/static/nginx.txt￼
+
+The following command will curl node-3 on your service's nodeport.
+
+student@bchd:~$ curl node-3:$NODE_PORT/static/nginx.txt￼
 
