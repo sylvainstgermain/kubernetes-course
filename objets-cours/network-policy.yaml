@@ -5,8 +5,21 @@ kind: NetworkPolicy
 metadata:
   name: netpol-1
   namespace: test
-spec:
-  podSelector: {}
+spec: # bloc qui permet de laisser passer le container client
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          run: client
+  podSelector:
+    matchLabels:
+      run: nginx
   policyTypes:
   - Ingress
-  - Egress
+
+# Bloque tout
+#  spec:
+#  podSelector: {}
+#  policyTypes:
+#  - Ingress
+#  - Egress

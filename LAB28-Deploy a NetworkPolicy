@@ -122,8 +122,32 @@ spec:
   - Ingress
   - Egress
 
+#Next, let's create this network policy.
+kubectl apply -f objets-cours/network-policy.yaml
 
+#Test connectivity between pods. This time it fails, as expected!
+kubectl exec -n test client -- wget -T 2 -q nginx -O -
+wget: bad address 'nginx'
+command terminated with exit code 1
 
+#Try the connectivity with the client02 pod as well. This should also fail.
+kubectl exec -n test client02 -- wget -T 2 -q nginx -O -
 
+#Now, let's go back in and edit our NetworkPolicy YAML manifest. 
+#We will allow connectivity only between the client pod and nginx.
+kubectl edit netpol netpol-1 -n test
 
-
+#Near the bottom the file, you'll find the word spec: (left justified). 
+#Replace the word spec: and all of the code below it, with the snippet 
+#shown below.
+spec:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          run: client
+  podSelector:
+    matchLabels:
+      run: nginx
+  policyTypes:
+  - Ingress
