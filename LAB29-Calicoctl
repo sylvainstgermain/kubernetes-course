@@ -208,6 +208,108 @@ Note: If you receive an error when trying to launch this Pod,
 you likely have indentation wrong. Try to fix it on your own, 
 or feel free to copy the above manifest and overwrite what you downloaded.
 
+#Initiate the calicoctl pod.
+kubectl apply -f objets-cours/calicoctl-etcd.yaml
+
+#Once the calicoctl pod is running, we will need to access it to run commands.
+ If we had chosen a different installation option, we could have ran commands 
+ locally to communicate with our cluster. However, there is a simple alias 
+ that will allow us to still use the command calicoctl to run our commands.
+  Set it up with the following line of code.
+
+alias calicoctl="kubectl exec -ti -n kube-system calicoctl -- /calicoctl"
+calicoctl --help
+Usage:
+  calicoctl [options] <command> [<args>...]
+
+    create    Create a resource by filename or stdin.
+    replace   Replace a resource by filename or stdin.
+    apply     Apply a resource by filename or stdin.  This creates a resource
+              if it does not exist, and replaces a resource if it does exists.
+    patch     Patch a pre-exisiting resource in place.
+    delete    Delete a resource identified by file, stdin or resource type and
+              name.
+    get       Get a resource identified by file, stdin or resource type and
+              name.
+    label     Add or update labels of resources.
+    convert   Convert config files between different API versions.
+    ipam      IP address management.
+    node      Calico node management.
+    version   Display the version of calicoctl.
+
+Options:
+  -h --help               Show this screen.
+  -l --log-level=<level>  Set the log level (one of panic, fatal, error,
+                          warn, info, debug) [default: panic]
+
+#Make sure calicoctl is able to communicate with your entire cluster.
+calicoctl get nodes
+NAME     
+node-1   
+node-2   
+node-3   
+
+#To view more information about the nodes, let's use the -o wide flag.#
+calicoctl get nodes -o wide
+NAME     ASN       IPV4              IPV6   
+node-1   (64512)   10.3.188.245/12          
+node-2   (64512)   10.9.54.194/12           
+node-3   (64512)   10.8.79.30/12    
+
+#View the available range from which a Pod can be assigned an IP address, 
+#by performing athe get ippools command.
+calicoctl get ippools -o wide
+NAME                  CIDR             NAT    IPIPMODE   VXLANMODE   DISABLED   SELECTOR   
+default-ipv4-ippool   192.168.0.0/16   true   Always     Never       false      all()  
+
+
+# Now to view the name of the interface that has been created which connects
+# the Pod to the host machine, which is known as a workloadendpoint, 
+# perform the following command.
+calicoctl get workloadendpoints -o wide
+NAME                                               WORKLOAD                       NODE     NETWORKS             INTERFACE         PROFILES                          NATS   
+node--2-k8s-sise--deploy--7566bd957d--ql6qm-eth0   sise-deploy-7566bd957d-ql6qm   node-2   192.168.247.40/32    cali94236e0af24   kns.default,ksa.default.default          
+node--3-k8s-sise--deploy--7566bd957d--r2pcl-eth0   sise-deploy-7566bd957d-r2pcl   node-3   192.168.139.103/32   calie4ccf73179d   kns.default,ksa.default.default
+
+Profiles are a way to group together multiple endpoints, which will allow
+ Calico to maintain things such as NetworkPolicies across the cluster.
+  Let's see which profiles exist already inside of our cluster.
+
+calicoctl get profiles -o wide
+NAME                                                 LABELS                                            
+ksa.kube-system.replicaset-controller                pcsa.projectcalico.org/name=replicaset-controller               
+ksa.kube-system.replication-controller               pcsa.projectcalico.org/name=replication-controller
+ksa.kube-system.resourcequota-controller             pcsa.projectcalico.org/name=resourcequota-controller
+ksa.kube-system.service-account-controller           pcsa.projectcalico.org/name=service-account-controller           
+ksa.kube-system.service-controller                   pcsa.projectcalico.org/name=service-controller                   
+ksa.kube-system.statefulset-controller               pcsa.projectcalico.org/name=statefulset-controller              
+ksa.kube-system.ttl-controller                       pcsa.projectcalico.org/name=ttl-controller                      
+ksa.prod.default                                     pcsa.projectcalico.org/name=default                              
+ksa.test.default                                     pcsa.projectcalico.org/name=default  
+
+=====================================
+Simple Calico Configuration Changes
+=====================================
+Now that we have explored what calicoctl can show us, let's take a look 
+to see what configuration changes we can make using it.
+
+Choose an ASN within the reserved private range: 
+https://tools.ietf.org/html/rfc6996. This example will use "65103".
+
+Number	Bits	Description	Reference
+64512 - 65534	16	Reserved for private use	RFC1930, RFC6996
+
+From https://tools.ietf.org/html/rfc1930#section-3:
+An AS is a connected group of one or more IP prefixes run by one
+or more network operators which has a SINGLE and CLEARLY DEFINED
+routing policy.
+
+
+
+
+
+
+
 
 
 
