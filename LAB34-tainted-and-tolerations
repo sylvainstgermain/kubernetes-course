@@ -35,53 +35,62 @@ spec:
         imagePullPolicy: IfNotPresent
 
 #Go ahead and create that Deployment now.
-kubectl apply -f objets-cours/tnt01.yaml￼
+kubectl apply -f objets-cours/tnt01.yaml
 deployment.apps/nginx created
 
 #Now let's see what Nodes each of the Pods were scheduled on.
-kubectl get pods -o wide￼
+kubectl get pods -o wide
 
-￼
-NAME                     READY   STATUS    RESTARTS   AGE   IP               NODE               NOMINATED NODE   READINESS GATES
-nginx-65797b879d-2gl7k   1/1     Running   0          13s   192.168.142.10   node-1   <none>           <none>
-nginx-65797b879d-5vx9r   1/1     Running   0          13s   192.168.43.202   node-3   <none>           <none>
-nginx-65797b879d-fl7n8   1/1     Running   0          13s   192.168.142.9    node-1   <none>           <none>
-nginx-65797b879d-kfvmh   1/1     Running   0          14s   192.168.142.7    node-1   <none>           <none>
-nginx-65797b879d-qcv4g   1/1     Running   0          14s   192.168.16.71    node-2   <none>           <none>
-nginx-65797b879d-sdkl2   1/1     Running   0          14s   192.168.43.201   node-3   <none>           <none>
-nginx-65797b879d-sdvd8   1/1     Running   0          14s   192.168.43.200   node-3   <none>           <none>
-nginx-65797b879d-sjcrp   1/1     Running   0          14s   192.168.43.198   node-3   <none>           <none>
-nginx-65797b879d-tjb5k   1/1     Running   0          14s   192.168.142.8    node-1   <none>           <none>
-nginx-65797b879d-v7n2k   1/1     Running   0          14s   192.168.43.199   node-3   <none>           <none>
+nginx-65797b879d-28j2v               1/1     Running   0          105s    192.168.84.165    node-1   <none>           <none>
+nginx-65797b879d-4n2hl               1/1     Running   0          105s    192.168.84.163    node-1   <none>           <none>
+nginx-65797b879d-6n8pf               1/1     Running   0          105s    192.168.84.166    node-1   <none>           <none>
+nginx-65797b879d-bjffh               1/1     Running   0          105s    192.168.139.110   node-3   <none>           <none>
+nginx-65797b879d-jnwf5               1/1     Running   0          106s    192.168.84.162    node-1   <none>           <none>
+nginx-65797b879d-kgjtk               1/1     Running   0          105s    192.168.84.164    node-1   <none>           <none>
+nginx-65797b879d-q9lf5               1/1     Running   0          105s    192.168.84.167    node-1   <none>           <none>
+nginx-65797b879d-v9vxp               1/1     Running   0          105s    192.168.247.48    node-2   <none>           <none>
+nginx-65797b879d-wpn9h               1/1     Running   0          105s    192.168.247.47    node-2   <none>           <none>
+nginx-65797b879d-z9mrn               1/1     Running   0          105s    192.168.247.49    node-2   <none>           <none>
 
 You should notice that they are fairly evenly distributed across all three 
 of your nodes.
 
 #Let's delete this Deployment so we can see how it behaves after there has 
 #been a taint applied.
-kubectl delete -f objets-cours/tnt01.yaml￼
+kubectl delete -f objets-cours/tnt01.yaml
 deployment.apps "nginx" deleted
 
 # Now, let's taint node-1. The taint we will use here is NoSchedule. 
 # And we will provide the key:value pair of trying_taints=yessir.
-kubectl taint nodes node-1 trying_taints=yessir:NoSchedule￼
+kubectl taint nodes node-1 trying_taints=yessir:NoSchedule
 node/node-1 tainted
 
 #Next we will create our simple Deployment again, and see where all of those 
 #Pods get scheduled.
-kubectl apply -f objets-cours/tnt01.yaml￼
+kubectl apply -f objets-cours/tnt01.yaml
 deployment.apps/nginx created
 
 #Check to see how the pods were distributed this time.
-kubectl get pods -o wide￼
+kubectl get pods -o wide
 
-￼
+nginx-65797b879d-7m7nb               1/1     Running   0          11s     192.168.247.54    node-2   <none>           <none>
+nginx-65797b879d-d9lr8               1/1     Running   0          11s     192.168.139.114   node-3   <none>           <none>
+nginx-65797b879d-dvbsl               1/1     Running   0          11s     192.168.247.51    node-2   <none>           <none>
+nginx-65797b879d-f2krw               1/1     Running   0          11s     192.168.139.111   node-3   <none>           <none>
+nginx-65797b879d-g4gmr               1/1     Running   0          11s     192.168.139.115   node-3   <none>           <none>
+nginx-65797b879d-jfxwp               1/1     Running   0          11s     192.168.139.113   node-3   <none>           <none>
+nginx-65797b879d-ln2sp               1/1     Running   0          11s     192.168.247.52    node-2   <none>           <none>
+nginx-65797b879d-m4ntz               1/1     Running   0          11s     192.168.247.53    node-2   <none>           <none>
+nginx-65797b879d-vg6mc               1/1     Running   0          11s     192.168.139.112   node-3   <none>           <none>
+nginx-65797b879d-vphqz               1/1     Running   0          11s     192.168.247.50    node-2   <none>           <none>
 
 #This time you should notice that the pods did not get s
 #cheduled on node-1
 
 # The taint made it so that the Pods all refused to be scheduled on node-1. 
-# That certainly can be desireable for most Pods, but what about those that you want to be able to schedule on the tainted node? Simple, just include a toleration inside of the Pod spec.
+# That certainly can be desireable for most Pods, but what about those that
+# you want to be able to schedule on the tainted node? Simple, just include 
+# a toleration inside of the Pod spec.
 vim tnt02.yaml￼
 
 apiVersion: apps/v1
@@ -111,33 +120,42 @@ spec:
         effect: "NoSchedule"
 
 # Now we will create this new deployment.
-kubectl apply -f objets-cours/tnt02.yaml￼
+kubectl apply -f objets-cours/tnt02.yaml
 deployment.apps/nginx-tolerated created
 
 # Next we can check to see where these pods were scheduled:
-kubectl get pods -o wide￼
+kubectl get pods -o wide
 
-￼
+nginx-tolerated-6f794d6685-4jr8x     1/1     Running   0          29s     192.168.247.58    node-2   <none>           <none>
+nginx-tolerated-6f794d6685-ck52q     1/1     Running   0          28s     192.168.84.169    node-1   <none>           <none>
+nginx-tolerated-6f794d6685-dvpds     1/1     Running   0          28s     192.168.84.171    node-1   <none>           <none>
+nginx-tolerated-6f794d6685-hdmgh     1/1     Running   0          28s     192.168.247.57    node-2   <none>           <none>
+nginx-tolerated-6f794d6685-k6fzw     1/1     Running   0          29s     192.168.247.56    node-2   <none>           <none>
+nginx-tolerated-6f794d6685-s7hfd     1/1     Running   0          29s     192.168.84.168    node-1   <none>           <none>
+nginx-tolerated-6f794d6685-tckmr     1/1     Running   0          29s     192.168.139.116   node-3   <none>           <none>
+nginx-tolerated-6f794d6685-tx2wb     1/1     Running   0          29s     192.168.247.55    node-2   <none>           <none>
+nginx-tolerated-6f794d6685-wtwlj     1/1     Running   0          29s     192.168.84.172    node-1   <none>           <none>
+nginx-tolerated-6f794d6685-zbwbk     1/1     Running   0          29s     192.168.84.170    node-1   <none>           <non
 
 #You should see that some of the Pods were allowed to be scheduled on node-1.
 # The toleration worked, yay!
 
 # Excellent! Now, let's remove both of the Deployments that we created.
-kubectl delete deploy --all￼
+kubectl delete deploy --all
 
 ￼
 # Now that we have cleaned house, let's get rid of the taint that is 
 # on node-1.
-kubectl taint nodes node-1 trying_taints=yessir:NoSchedule-￼
+kubectl taint nodes node-1 trying_taints=yessir:NoSchedule-
 node/node-1 untainted
 
 #Let's verify that the first Deployment we created in this lab is now able 
 #to schedule Pods on node-1.
-kubectl apply -f tnt01.yaml￼
+kubectl apply -f objets-cours/tnt01.yaml
 deployment.apps/nginx created
 
 # Make sure there were some Pods scheduled on the node-1.
-kubectl get pods -o wide￼
+kubectl get pods -o wide
 
 ￼
 
@@ -146,7 +164,7 @@ kubectl get pods -o wide￼
 # removed that taint!
 
 # Delete this deployment again.
-kubectl delete deploy --all￼
+kubectl delete deploy --all
 deployment.apps "nginx" deleted
 
 # Instead of using taints for anti-affinity, let's now switch over to using 
@@ -173,10 +191,10 @@ spec:
     hd: ssd
 
 # And now let's apply it.
-kubectl apply -f objets-cours/node-selected.yaml￼
+kubectl apply -f objets-cours/node-selected.yaml
 
 #Next up, we will verify that it did get created on node-2.
-kubectl get pods -o wide￼
+kubectl get pods -o wide
 
 ￼
 
