@@ -825,3 +825,69 @@ calico-node-z6lbl                          1/1     Running   0          2d23h   
 calicoctl                                  1/1     Running   0          3h15m   10.8.79.30       node-3   <none>           <none>
 coredns-5d65dd49c8-859m2                   1/1     Running   0          2d23h   192.168.139.66   node-3   <none>           <none>
 coredns-5d65dd49c8-fz798                   1/1     Running   0          2d23h   192.168.139.65   node-3   <none>           <none>
+
+
+=============================================
+Ingress and Ingress controller
+=============================================
+* Object the sit on top of services
+* Replace Nodeport
+* GIve a nodeport to ingress controller
+* Can be 1 nodeport by "batch of services" instead of one
+* Not natively install 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
