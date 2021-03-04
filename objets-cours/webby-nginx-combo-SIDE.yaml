@@ -1,0 +1,57 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-webby
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: webby  ####################         WEBBY
+    image: bchd.registry/alta3-webby
+    ports:
+    - containerPort: 8888
+  - name: nginx  ######################       NGINX
+    image: nginx:1.18.0
+    ports:
+    - containerPort: 80
+    - containerPort: 443
+  - name: blog    ######################## GHOST
+    image: ghost:2.6-alpine
+    imagePullPolicy: Always
+    ports:
+    - containerPort: 2368
+    env:
+      - name: url
+        value: http://localhost:2368/  
+    volumeMounts:
+    - name: nginx-proxy-config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+    - name: my-index-file
+      mountPath: /var/www/index.html
+      subPath: index.html
+    - name: static-demo-data
+      mountPath: /var/www/static/nginx.txt
+      subPath: nginx.txt
+  
+  volumes:
+  - name: nginx-proxy-config
+    configMap:
+      name: nginx-conf
+  - name: my-index-file
+    configMap:
+      name: index-file
+  - name: static-demo-data
+    configMap:
+      name: nginx-txt
+
+# containers:
+#      - name: blog
+#        image: ghost:2.6-alpine
+#        imagePullPolicy: Always
+#        ports:
+#        - containerPort: 2368
+#        env:
+#        - name: url
+#          value: http://localhost:2368/

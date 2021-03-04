@@ -69,7 +69,9 @@ kubectl create -f objets-cours/webby-nginx-combo.yaml
 kubectl get deployment
 kubectl get pods
 
-sudo kubectl port-forward <choose-from-selection-of-kubectl-get-pods-from-above> 2224:80 --address=0.0.0.0 If that does not work and you get an error, try using your aux2 port: 2225 instead. The GIF below will demonstrate this method.
+sudo kubectl port-forward <choose-from-selection-of-kubectl-get-pods-from-above> 2224:80 --address=0.0.0.0 
+If that does not work and you get an error, try using your aux2 port: 2225 instead. The GIF below will demonstrate this method.
+sudo kubectl port-forward webby-nginx-combo 2224:80 --address=0.0.0.0
 
 # Use your channel changer to select the appropriate auxiliary port view now being served 
 # which is "aux1".
@@ -119,15 +121,20 @@ spec:
 
 
 # Start the ghost container.
-kubectl apply -f ghost.yaml￼
+kubectl apply -f objets-cours/ghost.yaml
 deployment "ghost" created
 
 # You need the unique ID of the pod you just created. Note the name of the pod blog- before
 # moving to the next step.
 kubectl get pods￼
+blog-6988c6dcfd-cs9dq   1/1     Running   0          2m7s
+
+kubectl get deploy
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+blog   1/1     1            1           76s
 
 # Port-forward your ghost pod.
-kubectl port-forward blog-<pod-suffix> 2224:2368 --address=0.0.0.0￼
+kubectl port-forward blog-6988c6dcfd-cs9dq 2224:2368 --address=0.0.0.0
 
 # From your browser, access your ghost server using your channel changer to select aux1 to view 
 # the page that is now being served. You may need to put a single / in the aux1 navigation bar 
@@ -137,18 +144,12 @@ kubectl port-forward blog-<pod-suffix> 2224:2368 --address=0.0.0.0￼
 -----------------------------------------------------
 Challenge 3
 -----------------------------------------------------
-Add the Ghost container as a sidecar in your webby-nginx-combo.yaml. Then, configure NGINX to 
+Add the Ghost container as a sidecar in your webby-nginx-combo.yaml. 
+Then, configure NGINX to 
 serve ghost on the /blog path.
 
-GOOD LUCK! This is a real challenge. Try to do it without any help. Answers are provided below if necessary.
-
-
-
-
-
-
-Challenge Answers
-The Deployment Manifest
+GOOD LUCK! This is a real challenge. Try to do it without any help. Answers are provided below 
+if necessary.
 
 ￼
 ---
