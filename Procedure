@@ -1,3 +1,5 @@
+git add *;git commit -a -m "www";git push
+
 -------------------------------
 Batir un container
 -------------------------------

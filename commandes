@@ -1,3 +1,6 @@
+git add *;git commit -a -m "www";git push
+
+
 ok: [master-2]
 ok: [master-1]
 ok: [master-3]

@@ -277,11 +277,14 @@ spec:
           name: nginx-txt
 
 
-Before creating your Deployment you will need to edit your nginx-conf to accomodate the new path. First step is to remove the old ConfigMap.
+Before creating your Deployment you will need to edit your nginx-conf to accomodate
+ the new path. First step is to remove the old ConfigMap.
 
-student@bchd:~$ kubectl delete cm nginx-conf￼
+student@bchd:~$ 
+kubectl delete cm nginx-conf￼
 
-Next, we will update the nginx.conf file to be used as the new nginx-conf ConfigMap.
+#Next, we will update the nginx.conf file to be used as the new nginx-conf
+ ConfigMap.
 
 student@bchd:~$ vim nginx.conf￼
 
@@ -321,19 +324,22 @@ http {
 
     }
 }
-Next, create your nginx-conf ConfigMap again.
 
-student@bchd:~$ kubectl create cm nginx-conf --from-file=nginx.conf￼
+#Next, create your nginx-conf ConfigMap again.
+kubectl create cm nginx-conf --from-file=nginx.conf￼
 
-Now that you have prepared the ConfigMap appropriately, initiate your Deployment.
+Now that you have prepared the ConfigMap appropriately, 
+initiate your Deployment.
 
-student@bchd:~$ kubectl apply -f webby-nginx-combo.yaml￼
+kubectl apply -f webby-nginx-combo.yaml￼
 
 Next, port-forward one of the Pods.
 
 student@bchd:~$ kubectl port-forward nginx-webby-combo-74f5794f75-t5hsh 2224:80 --address=0.0.0.0￼
-
-Now use your channel changer to select the appropriate auxiliary port view now being served. Test this by adding the following onto the suffix of your URL. Note you will need a trailing "/" for /blog/ and /static/.
+kubectl port-forward nginx-webby-combo-7f74d6c7df-45pz6 2224:80 --address=0.0.0.0￼
+Now use your channel changer to select the appropriate auxiliary port 
+view now being served. Test this by adding the following onto the suffix 
+of your URL. Note you will need a trailing "/" for /blog/ and /static/.
 
 Webby: < no need too add anything here. just the plain old aux
 
