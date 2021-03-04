@@ -6,6 +6,72 @@ kubectl delete all --all
 #Confirm namespace test exists.
 kubectl get namespaces
 ---------------------------------------------------
+These are the three primary types of Services that you need to be familiar with:
+
+ClusterIP Service
+NodePort Service
+LoadBalancer Service
+1 - ClusterIP Service
+A ClusterIP service can only be accessed from inside of the cluster. This means that you, as a Kubernetes Administrator, have the ability to access all of the ClusterIP services via kubectl.
+
+This is accessible via the spec.clusterIp port. If a spec.ports[*].targetPort is set it will route from the port to the targetPort. The CLUSTER-IP you get when calling kubectl get services is the IP assigned to this service within the cluster internally.
+
+2 - NodePort Service
+A NodePort Service simply exposes a specific port on every node in your cluster, and any traffic that hits that port will then be directed into an EndPoint (Pod) via iptables or netfilter rules.
+
+Your NodeIPs are the external IP addresses of the nodes. If you access this service on a nodePort from the node's external IP, it will route the request to spec.clusterIp:spec.ports[].port, which will in turn route it to your spec.ports[].targetPort, if set.
+
+Here are two diagrams to help you see what may happen. If it is not clear to you how a nodePort works, please ask your instructor.
+
+Please Note: These "Single endpoints" represent Pods residing inside of the Node that is pointing to it
+
+Access via node-2 Client to endpoint flow.
+
+￼
+                   +---------+
+                   | client  |
+                   +--+---^--+
+                     1|   |6
++---------+   2    +--v---+--+
+|         |  <---  |         |
+|  node 1 |  SNAT  |  node 2 |
+|         |  --->  |         |
++---+-^---+   5    +---------+
+  3 | | 4
++---v-+---+
+| Single  |
+|endpoint |
++---------+
+Access via node1 Client to endpoint flow
+
+￼
+                        +---------+
+                        | client  |
+                  1     +---^--^--+
+         +------------------+  |
+No SNAT  |  +-------------------
+         |  |      4
+     +---+--+--+        +---------+
+     |  node 1 |        |  node 2 |
+     +---+-^---+        +---------+
+       2 | | 3
+     +---v-+---+
+     | Single  |
+     |endpoint |
+     +---------+
+3 - LoadBalancer Service
+Most likely, you do not want to be exposing n number of Node IP addresses as Public IP addresses. Most cloud providers, such as GKE and AWS, have built Load Balancers into their cloud that a Kubernetes loadBalancer service is able to dynamically configure.
+
+A loadBalancer service will assure Pods are ready, and then notify the Cloud Load Balancer of the route to the specific Pods. You can access this service from your load balancer's IP address, which routes your request to a nodePort, which in turn routes the request to the clusterIP (this then load balances to the pods providing that service). You can access this service as you would a NodePort or a ClusterIP service as well.
+
+Envoy (written by Lyft) is typically the load balancer of choice. Unfortunately, Kubernetes has poor support for other External Load Balancers (or maybe other external load balancers have poor support for Kubernetes), so unless you're using Envoy, it is likely you will need to create your own "glue code" to connect the loadBalancer service to your own Load Balancer.
+
+If you are interested in learning more about Services, check out these other resources:
+
+Exposing Exteranl IP addresses - https://kubernetes.io/docs/tutorials/stateless-application/expose-external-ip-address/
+Basics of Exposing Services - https://kubernetes.io/docs/tutorials/kubernetes-basics/expose/expose-intro/
+Understanding Services - https://kubernetes.io/docs/tasks/access-application-cluster/service-access-application-cluster/
+
 
 
 

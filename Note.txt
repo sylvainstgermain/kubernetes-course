@@ -756,19 +756,34 @@ microservices pa
 ==================================================
 NETWORKS (4 hops !!!)
 ==================================================
-1# IP Cluster (loadbalancer) external facing
+1# IP Cluster (loadbalancer) external facing public IP
 kubectl get services -o wide
 load balance to nodes
 
-2# IP Nodes
+2# IP Nodes (10.0.0.0)
 kubectl get nodes -o wide
+NAME     STATUS   ROLES    AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION       CONTAINER-RUNTIME
+node-1   Ready    <none>   2d21h   v1.18.0   10.3.188.245   <none>        Ubuntu 18.04.5 LTS   4.15.0-136-generic   containerd://1.3.3
+node-2   Ready    <none>   2d21h   v1.18.0   10.9.54.194    <none>        Ubuntu 18.04.5 LTS   4.15.0-136-generic   containerd://1.3.3
+node-3   Ready    <none>   2d21h   v1.18.0   10.8.79.30     <none>        Ubuntu 18.04.5 LTS   4.15.0-136-generic   containerd://1.3.3
 theres a Kubeproxy that load balance between pod
 
-3# IP of service
+3# IP of service (172.16.0.0)
+kubectl get service -o wide
+kubectl describe 
+
+NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE    SELECTOR
+kubernetes      ClusterIP   172.16.3.1     <none>        443/TCP   137m   <none>
+simpleservice   ClusterIP   172.16.3.158   <none>        80/TCP    133m   app=sise
+
 kubectl describe svc -n test
    - clusterIP
    -
-4# POD IP
+4# POD IP (192.168.0.0)
+NAME                           READY   STATUS    RESTARTS   AGE    IP                NODE     NOMINATED NODE   READINESS GATES
+sise-deploy-7566bd957d-ql6qm   1/1     Running   0          134m   192.168.247.40    node-2   <none>           <none>
+sise-deploy-7566bd957d-r2pcl   1/1     Running   0          134m   192.168.139.103   node-3   <none>           <none>
+
 
 30000-32767 -> Node port acces to serivce a pointer to services
 
@@ -784,3 +799,5 @@ NODE PORT- a port that is opened on every node of your cluster, allowing access 
 CLUSTER IP SUBNET- all the ClusterIP services in the cluster. 
 KUBE PROXY- located on every node; interprets network rules that allow access to the Cluster IP. Also enables load-balancing across replicated Pods.
 
+Cluster IP vs Nodeport service ?
+Under Type 
