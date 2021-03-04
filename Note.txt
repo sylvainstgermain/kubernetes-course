@@ -801,3 +801,15 @@ KUBE PROXY- located on every node; interprets network rules that allow access to
 
 Cluster IP vs Nodeport service ?
 Under Type 
+
+# Comprendre calkico sur le namaspace kube-system
+kubectl get pods -n kube-system
+NAME                                       READY   STATUS    RESTARTS   AGE
+calico-kube-controllers-7798c85854-kh79p   1/1     Running   0          2d22h
+calico-node-77bj4                          1/1     Running   0          2d22h
+calico-node-xdjhf                          1/1     Running   0          2d22h
+calico-node-z6lbl                          1/1     Running   0          2d22h
+calicoctl                                  1/1     Running   0          176m
+coredns-5d65dd49c8-859m2                   1/1     Running   0          2d22h
+coredns-5d65dd49c8-fz798                   1/1     Running   0          2d22h
+
