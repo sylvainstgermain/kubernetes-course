@@ -1,0 +1,135 @@
+Lab Objective
+Configure a Container and a Pod to use a securityContext.
+A Pod or Container may have a SecurityContext applied to it in order to define privileges and access parameters.
+
+It is possible to set all of the containers inside of the Pod to have the same privileges and access parameters by setting the PodSecurityContext. To do this, you can add a securityContext field inside of the Pod specifications. See this truncated example of where to put the securityContext.
+
+
+spec:
+  securityContext:
+    runAsUser: 1000 # specifies all processes run with user ID 1000
+    runAsGroup: 3000 # specifies all processes run with primary group ID 3000
+    fsGroup: 2000 # specifies all processes run with secondary group ID 2000
+Notice how it is at the same level that you would define the containers at. We also will be able to set a securityContext inside of any individual container. That would look like this:
+
+￼
+containers:
+- name: secured-container
+  image: mhausenblas/simpleservice
+  securityContext:
+    runAsUser: 2000
+    allowPrivilegeEscalation: false
+
+If you would like to read more about them, check out the Kubernetes Documentation here: <a target="_blank" href="https://kubernetes.io/docs/tasks/configure-pod-container/security-context/> https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+
+Procedure
+# In Linux, every user has a number assigned to them for tracking purposes
+# (UIDs). THe same is true for groups (GIDs). If you wanted to see those assignments, you can (provided you have proper permissions) by displaying the contents of /etc/passwd
+
+cat /etc/passwd
+
+# The first way we are going to secure our pod is to ensure that we are 
+# forcing anybody accessing our cluster to run as a specific user, by 
+# providing their User ID. Here we are setting the UID to be 1000, as
+#  well as disabling the ability to run as a privileged (root) user. 
+# Create the following Pod manifest:
+
+vim secured_cont.yaml
+￼
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secured-cont
+spec:
+  securityContext:
+    fsGroup: 2000  # pod wide
+  containers:
+  - name: secured-container
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    securityContext:
+      runAsUser: 1000  # container wide
+      runAsGroup: 3000
+      allowPrivilegeEscalation: false
+    volumeMounts:
+    - name: secured-volume
+      mountPath: /data/secured
+  volumes:
+    - name: secured-volume
+      emptyDir: {}
+
+vim unsecured_cont.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: unsecured-cont
+spec:
+  containers:
+  - name: unsecured-container
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+    volumeMounts:
+    - name: secured-volume
+      mountPath: /data/secured
+  volumes:
+    - name: secured-volume
+      emptyDir: {}
+
+# Start up your secure Pod.
+kubectl apply -f secured_cont.yaml
+pod/secured-cont created
+
+# Next, verify that the Pod is running.
+kubectl get pods secured-cont￼
+NAME           READY   STATUS    RESTARTS   AGE
+secured-cont   1/1     Running   0          85s
+
+# Now, let's exec inside of the Container to examine what privileges we have.
+kubectl exec -it secured-cont -- sh
+
+# Once inside of your shell, take a look at the processes you are privvy to. 
+# The output from this command should show that the USER is 1000, just like 
+# we had in our runAsUser field of the securityContext.
+ps
+￼
+PID   USER     TIME  COMMAND
+    1 1000      0:00 sleep 1h
+   12 1000      0:00 sh
+   17 1000      0:00 ps
+
+# Next, take a look inside of the /data directory. You should only have the
+# /secured directory. You will notice that it has the group ID of 2000, 
+# which we set while using our fsGroup.
+cd /data && ls -l
+
+total 4
+drwxrwsrwx    2 root     2000          4096 Feb 18 21:53 secured
+Create a file inside of the /demo/secured directory.
+
+echo 'security verified' > secured/security-test.txt
+
+#Inspect the file. This will show you that the user ID is 1000 
+#(set by the runAsUser field), and the group ID of 2000 (set by the 
+# fsGroup field).
+ls -l secured
+
+￼
+total 4
+-rw-r--r--    1 1000     2000            18 Feb 18 21:59 security-test.txt
+
+#To assure that this pod does not allow for any root access, the group ID 
+# (gid) needs to not be 0. Although we have set the fsGroup to 2000, if 
+# we would ignore the runAsGroup field, the process still would be able 
+# to interact with root group files. That is why we set the runAsGroup
+#  to 3000. Verify that this is the case by running the following command.
+id
+￼
+uid=1000 gid=3000 groups=2000
+
+# Exit out of the container.
+exit
+
+# Now let's get rid of this pod.
+kubectl delete pod secured-cont
+pod "secured-cont" deleted

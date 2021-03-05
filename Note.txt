@@ -960,6 +960,10 @@ https://www.cncf.io/certification/ckad/
 * Only have 2 chances !
 * Take the first exam whatever, learn and be prepared for the second time
 
+Security  context
+* assure that every body run as user numer XXX
+* Prevent any processe to escalate to parent Processes
+
 csfeeser@alta3.com
 
 --------------------
@@ -972,6 +976,35 @@ HELm
 * It as is own suite of commands outsibe kubectl
 
 help create
+
+--------------------
+Security context
+----------------------
+Can be at the pod level and container lev
+container level always win 
+
+--------------------
+Logging
+----------------------
+kubectl log ....
+
+auditing section look 
+attach an object on the API server
+
+Kubernetes Level
+https://kubernetes.io/docs/tasks/debug-application-cluster/audit/
+
+Container log
+bash in the container and check
+
+fluentd - can by add to containers level
+          place a pod as a DeamonSet on every node
+
+fluentd - can by add to node level
+
+Solution in lab 41, 42, stage 1 solutions
+rsyslog - run on the node
+
 
 
 

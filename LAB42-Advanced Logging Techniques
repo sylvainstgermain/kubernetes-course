@@ -1,0 +1,379 @@
+Lab Objective
+This lab takes a look at some of the more advanced techniques of logging with and for kubernetes. This includes basic logging with pods and containers, using a sidecar pod with fluentd, as well as centralized logging with best practice of separation from the cluster.
+
+Procedure
+Basic Logging
+In this example, we take a look at a pod specification that has a container writing text to standard out
+
+student@bchd:~$ vim ~/counter-pod.yaml
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: counter
+spec:
+  containers:
+  - name: count
+    image: busybox
+    args: [/bin/sh, -c,
+            'i=0; while true; do echo "$i: $(date)"; i=$((i+1)); sleep 1; done']
+While simple on the outside, kubernetes inherent logging can show you a great deal more than just that. Below is a list of flags for the kubectl logs command. We will utilize some of these going forward.
+
+
+| Name           | Shorthand | Default | Usage                                         |
+| ---            | ---       | ---     | ---                                           |
+| all-containers |           | false   | Get all containers' logs in the pod(s)        |
+| container      | c         |         | Prints the logs of a specified container      |
+| follow         | f         | false   | Specify if the logs should be streamed        |
+| since          |           | 0s      | Only return logs new than relative duratin    |
+| tail           |           | -1      | Lines of recent log files to display          |
+| timestamps     |           | false   | Include timestamps on each line of log output |
+Now that we have the file created, run the pod.
+
+student@bchd:~$ kubectl apply -f ~/counter-pod.yaml
+
+
+pod/counter created
+Let's check what the output is in the logs. In a second pane within your tmux session, run the following command to look at the logs of the Pod we just created.
+
+student@bchd:~$ kubectl logs -f counter
+
+
+0: Wed Mar 25 00:17:23 UTC 2020
+1: Wed Mar 25 00:17:24 UTC 2020
+2: Wed Mar 25 00:17:25 UTC 2020
+3: Wed Mar 25 00:17:26 UTC 2020
+4: Wed Mar 25 00:17:27 UTC 2020
+5: Wed Mar 25 00:17:28 UTC 2020
+6: Wed Mar 25 00:17:29 UTC 2020
+7: Wed Mar 25 00:17:30 UTC 2020
+To exit the logs, do a Ctrlc since you used the option of -f to "follow" them.
+
+By default, kubectl logs will want you to specify a particular container. This will be more of a self-exercise. If you don't have any other pods running, you can kill your counter pod and then run one of your own, or one from a previous lab that has multiple containers within a pod. (You might want to look for one with a deployment). Once you have located a manifest and deployed it, take a look at your pods to see the pod name. Then find the containers within (either by the manifest itself, or with a wide output as we'll show here). Once you find your container names, apply the pod name and container name to the last command in the sequence of this step.
+
+See what deployments you have running.
+
+student@bchd:~$ kubectl get deployments
+
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+myjenkins                1/1     1            1           6h40m
+nfs-client-provisioner   1/1     1            1           6h55m
+patch-demo               2/2     2            2           8h
+If you have some deployments running you can try grabbing those logs as well. Use whatever deployment you have running, but here we'll use patch-demo as an example. If we wanted to get the logs, the procedure would be as follows.
+
+student@bchd:~$ kubectl get deployments patch-demo -o wide
+
+
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS                          IMAGES                                       SELECTOR
+patch-demo   2/2     2            2           8h    patch-demo-ctr-2,patch-demo-ctr-3   redis,gcr.io/google-samples/node-hello:1.0   app=nginx
+Note the names of the containers within this Pod. If there is 'only' one, great! If you happened up on a pod with more than one container, even better! Note the names of the containers within the pod, you'll need that in a moment. Now get the names of the pods within the deployment.
+
+student@bchd:~$ kubectl get pods
+
+
+NAME                                      READY   STATUS    RESTARTS   AGE
+counter                                   1/1     Running   0          34m
+myjenkins-8d8d5b8f-cn6bn                  1/1     Running   1          7h
+nfs-client-provisioner-676bcd984c-dhjh9   1/1     Running   0          7h15m
+patch-demo-55bb7dc88f-ct8n5               2/2     Running   0          8h
+patch-demo-55bb7dc88f-lw6fh               2/2     Running   0          8h
+Use one of the pod names you just grabbed to run the following command. You will be using a different pod than shown here. Specify the name of the container inside that pod using -c containername.
+
+student@bchd:~$ kubectl logs patch-demo-55bb7dc88f-ct8n5 -c patch-demo-ctr-2
+
+
+1:C 31 Mar 2020 18:48:20.370 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+1:C 31 Mar 2020 18:48:20.370 # Redis version=5.0.8, bits=64, commit=00000000, modified=0, pid=1, just started
+1:C 31 Mar 2020 18:48:20.370 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+1:M 31 Mar 2020 18:48:20.373 * Running mode=standalone, port=6379.
+1:M 31 Mar 2020 18:48:20.373 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
+1:M 31 Mar 2020 18:48:20.373 # Server initialized
+1:M 31 Mar 2020 18:48:20.373 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+1:M 31 Mar 2020 18:48:20.373 * Ready to accept connections
+Now check the logs of all the containers inside that pod. What are the differences you see between selecting a single container and viewing all container logs of that pod at once?
+
+student@bchd:~$ kubectl logs patch-demo-55bb7dc88f-ct8n5 --all-containers=true
+
+Okay great. Now we want to show all the logs from a pod that have been written in the past hour. We've just recently brought this pod up so maybe you should try changing the time to something more recent. In this example we will use a jenkins pod. If nothing is displayed, it simply means no information has been written to the log. If that is the case, then delete the --since=1h and try again.
+
+student@bchd:~$ kubectl logs --since=1h <pod name> -c <container>
+
+Now change that hour to 5 hours, or two minutes. Your results will vary based on the container, and when the pod was started (i.e. there are not going to be logs from 5 hours ago if the pod/container was started 10 minutes ago.) If a pod was started 4 hours ago and you request all logs from 5 hours, you'll get up to the start of the launch. Below are two example commands and their output.
+
+student@bchd:~$ kubectl logs --since=5h myjenkins-8d8d5b8f-cn6bn --all-containers=true
+
+
+2020-04-01 10:23:45.021+0000 [id=527]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Started Periodic background build discarder
+2020-04-01 10:23:45.056+0000 [id=527]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Finished Periodic background build discarder. 1 ms
+2020-04-01 11:23:45.021+0000 [id=559]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Started Periodic background build discarder
+2020-04-01 11:23:45.037+0000 [id=559]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Finished Periodic background build discarder. 1 ms
+2020-04-01 12:23:45.022+0000 [id=592]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Started Periodic background build discarder
+2020-04-01 12:23:45.035+0000 [id=592]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Finished Periodic background build discarder. 1 ms
+2020-04-01 12:31:34.151+0000 [id=596]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Started telemetry collection
+2020-04-01 12:31:34.169+0000 [id=596]   INFO    j.t.Telemetry$TelemetryReporter#execute: Collection of anonymous usage statistics is disabled, skipping telemetry collection and submission
+2020-04-01 12:31:34.180+0000 [id=596]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Finished telemetry collection. 18 ms
+2020-04-01 13:23:45.021+0000 [id=627]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Started Periodic background build discarder
+2020-04-01 13:23:45.036+0000 [id=627]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Finished Periodic background build discarder. 2 ms
+2020-04-01 14:23:45.021+0000 [id=659]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Started Periodic background build discarder
+2020-04-01 14:23:45.051+0000 [id=659]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Finished Periodic background build discarder. 4 ms
+student@bchd:~$ kubectl logs --since=45m myjenkins-8d8d5b8f-cn6bn
+
+
+2020-04-01 14:23:45.021+0000 [id=659]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Started Periodic background build discarder
+2020-04-01 14:23:45.051+0000 [id=659]   INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Finished Periodic background build discarder. 4 ms
+If you need to know what time events occurred, a nice solution is adding the timestamps flag onto the command. Notice the difference between this output and the above one. Some logs automatically will have their own timestamp but in the case that there isn't, or you need more information, use the timestamp option on your logs.
+
+student@bchd:~$ kubectl logs --since=45m myjenkins-8d8d5b8f-cn6bn --timestamps=true
+
+
+2020-04-01T14:23:45.02397798Z 2020-04-01 14:23:45.021+0000 [id=659]     INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Started Periodic background build discarder
+2020-04-01T14:23:45.052153543Z 2020-04-01 14:23:45.051+0000 [id=659]    INFO    hudson.model.AsyncPeriodicWork#lambda$doRun$0: Finished Periodic background build discarder. 4 ms
+Central Logging with rsyslog
+Install rsyslog if you don't have it already.
+
+student@bchd:~$ sudo apt-get install rsyslog -y
+
+Check your version of rsyslogd
+
+student@bchd:~$ rsyslogd -v
+
+
+rsyslogd 8.32.0, compiled with:
+        PLATFORM:                               x86_64-pc-linux-gnu
+        PLATFORM (lsb_release -d):
+        FEATURE_REGEXP:                         Yes
+        GSSAPI Kerberos 5 support:              Yes
+        FEATURE_DEBUG (debug build, slow code): No
+        32bit Atomic operations supported:      Yes
+        64bit Atomic operations supported:      Yes
+        memory allocator:                       system default
+        Runtime Instrumentation (slow code):    No
+        uuid support:                           Yes
+        systemd support:                        Yes
+        Number of Bits in RainerScript integers: 64
+
+Verify rsyslog is running.
+
+student@bchd:~$ systemctl status rsyslog
+
+
+● rsyslog.service - System Logging Service
+   Loaded: loaded (/lib/systemd/system/rsyslog.service; enabled; vendor preset: enabled)
+   Active: active (running) since Mon 2020-03-30 12:42:53 EDT; 1 day 20h ago
+     Docs: man:rsyslogd(8)
+           http://www.rsyslog.com/doc/
+ Main PID: 894 (rsyslogd)
+    Tasks: 4 (limit: 2360)
+   CGroup: /system.slice/rsyslog.service
+           └─894 /usr/sbin/rsyslogd -n
+Edit your rsyslog configuration file.
+
+student@bchd:~$ sudo vi /etc/rsyslog.conf
+
+Uncomment the following (on the left are line numbers):
+
+
+17    #module(load="imudp")
+18    #input(type="imudp" port="514")
+
+21    #module(load="imtcp")
+22    #input(type="imtcp" port="514")
+Add the following line
+
+
+24    $template remote-incoming-logs,"/var/log/%HOSTNAME%/%PROGRAMNAME%.log"   
+25    *.* ?remote-incoming-logs
+Restart rsyslog.
+
+student@bchd:~$ sudo systemctl restart rsyslog.service
+
+Run socket statistics (ss) to further learn about the status of your rsyslog daemon.
+
+student@bchd:~$ ss -tunelp | grep 514
+
+
+udp   UNCONN  0       0                    0.0.0.0:514            0.0.0.0:*      ino:257053 sk:17 <->
+udp   UNCONN  0       0                       [::]:514               [::]:*      ino:257054 sk:18 v6only:1 <->
+tcp   LISTEN  0       25                   0.0.0.0:514            0.0.0.0:*      ino:257057 sk:19 <->
+tcp   LISTEN  0       25                      [::]:514               [::]:*      ino:257058 sk:1a v6only:1 <->
+Verify there are no errors.
+
+student@bchd:~$ rsyslogd -f /etc/rsyslog.conf -N1
+
+
+rsyslogd: version 8.32.0, config validation run (level 1), master config /etc/rsyslog.conf
+rsyslogd: End of config validation run. Bye.
+The next thing we need to do is move into one of our nodes to configure the client side of rsyslog.
+
+student@bchd:~$ ssh node-1
+
+Edit the rsyslog.conf file. Make sure that it looks exactly like the following file.
+
+student@node-1:~$ sudo vi /etc/rsyslog.conf
+
+
+#  /etc/rsyslog.conf    Configuration file for rsyslog.
+#
+#                       For more information see
+#                       /usr/share/doc/rsyslog-doc/html/rsyslog_conf.html
+#
+#  Default logging rules can be found in /etc/rsyslog.d/50-default.conf
+
+#################
+#### MODULES ####
+#################
+$PreserveFQDN on
+
+module(load="imuxsock") # provides support for local system logging
+#module(load="immark")  # provides --MARK-- message capability
+
+# provides UDP syslog reception
+#module(load="imudp")
+#input(type="imudp" port="514")
+
+# provides TCP syslog reception
+#module(load="imtcp")
+#input(type="imtcp" port="514")
+
+# provides kernel logging support and enable non-kernel klog messages
+module(load="imklog" permitnonkernelfacility="on")
+
+###########################
+#### GLOBAL DIRECTIVES ####
+###########################
+
+#
+# Use traditional timestamp format.
+# To enable high precision timestamps, comment out the following line.
+#
+$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
+
+# Filter duplicated messages
+$RepeatedMsgReduction on
+
+#
+# Set the default permissions for all log files.
+#
+$FileOwner syslog
+$FileGroup adm
+$FileCreateMode 0640
+$DirCreateMode 0755
+$Umask 0022
+$PrivDropToUser syslog
+$PrivDropToGroup syslog
+
+#
+# Where to place spool and state files
+#
+$WorkDirectory /var/spool/rsyslog
+
+#
+# Include all config files in /etc/rsyslog.d/
+#
+$IncludeConfig /etc/rsyslog.d/*.conf
+
+##Enable sending of logs over UDP add the following line:
+
+*.* @bchd:514
+
+##Enable sending of logs over TCP add the following line:
+
+*.* @bchd:514
+
+##Set disk queue when rsyslog server will be down:
+
+$ActionQueueFileName queue
+$ActionQueueMaxDiskSpace 1g
+$ActionQueueSaveOnShutdown on
+$ActionQueueType LinkedList
+$ActionResumeRetryCount -1
+
+Restart rsyslog on the node.
+
+student@node-1:~$ sudo systemctl restart rsyslog
+
+Exit the node.
+
+student@node-1:~$ exit
+
+Now that you are back on beachhead (the server side).
+
+student@bchd:~$ sudo systemctl restart rsyslog
+
+Now we need to change ownership of the log directory.
+
+student@bchd:~$ sudo chown student:student /var/log/node-1/
+
+Verify that there is a directory for the client rsyslog machine.
+
+student@bchd:~$ ls -ltr /var/log
+
+
+-rw-rw----  1 root      utmp                 0 Apr  1 06:25 btmp
+drwx------  2 student   student           4096 Apr  1 09:53 bchd
+drwx------  2 student   student           4096 Apr  1 10:02 node-1
+-rw-r-----  1 syslog    adm              93584 Apr  1 10:04 auth.log
+Open two new tmux panes side by side, one for a watch and one to tail the log.
+
+student@bchd:~$ watch -n 1 'ls -ltr /var/log/node-1'
+
+
+Every 1.0s: ls -ltr /var/log/k8s*                                       bchd: Wed Apr  1 10:05:56 2020
+
+/var/log/bchd:
+total 16
+-rw-r--r-- 1 syslog syslog   87 Apr  1 09:53 systemd-networkd.log
+-rw-r--r-- 1 syslog syslog  464 Apr  1 09:56 systemd.log
+-rw-r--r-- 1 syslog syslog 1321 Apr  1 09:56 rsyslogd.log
+-rw-r--r-- 1 syslog syslog 1686 Apr  1 10:04 sudo.log
+
+/var/log/node-1.
+:
+total 244
+-rw-r--r-- 1 syslog syslog      0 Apr  1 10:00 systemd.log
+-rw-r--r-- 1 syslog syslog   1890 Apr  1 10:00 rsyslogd.log
+-rw-r--r-- 1 syslog syslog    114 Apr  1 10:00 sudo.log
+-rw-r--r-- 1 syslog syslog   1048 Apr  1 10:02 systemd-timesyncd.log
+-rw-r--r-- 1 syslog syslog     97 Apr  1 10:02 systemd-networkd.log
+-rw-r--r-- 1 syslog syslog 181002 Apr  1 10:05 containerd.log
+In the second new pane, tail the containderd.log. NOTE: It is possible you may not have ALL of the logs displayed above. That's okay!
+
+student@bchd:~$ tail -f /var/log/node-1/containerd.log
+
+
+2020-04-01T14:15:30-04:00 node-1 kubelet[11019]: I0401 14:15:30.625424   11019 kuberuntime_manager.go:422] No sandbox for pod "patch-demo-75644b94c7-gpbd9_default(32d9c9b7-4c0d-46b9-8221-6806a59f3f54)" can be found. Need to start a new one
+2020-04-01T14:15:31-04:00 node-1 kubelet[11019]: I0401 14:15:31.640215   11019 provider.go:98] Refreshing cache for provider: *credentialprovider.defaultDockerConfigProvider
+2020-04-01T14:15:31-04:00 node-1 kubelet[11019]: I0401 14:15:31.640215   11019 provider.go:98] Refreshing cache for provider: *credentialprovider.defaultDockerConfigProvider
+2020-04-01T14:15:31-04:00 node-1 kubelet[11019]: I0401 14:15:31.878259   11019 kubelet.go:1952] SyncLoop (PLEG): "patch-demo-75644b94c7-25t8w_default(f6a6d993-f2dd-4a3c-86ef-09b0d374e6c9)", event: &pleg.PodLifecycleEvent{ID:"f6a6d993-f2dd-4a3c-86ef-09b0d374e6c9", Type:"ContainerStarted", Data:"f687151f4d0041c9f99c83cf8f875772ad2e34cd6c15a703e5ff7af682a8f54e"}
+Create a new Pod and let's make sure that it gets placed on node-1. Replace node-1 with your student machine number.
+
+student@bchd:~$ vim nginx-rsyslog-pod.yaml
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-rsyslog-pod
+spec:
+  containers:
+  - name: nginx-rsyslog-pod
+    image: nginx
+  nodeName: node-1   # ensures placement on a specific node
+Start up that Pod while you are watching the tailing of your kubelet.log.
+
+student@bchd:~$ kubectl apply -f nginx-rsyslog-pod.yaml
+
+The tail should show something similar to this:
+
+
+2020-04-01T14:26:17-04:00 node-1 kubelet[11019]: I0401 14:26:17.928415   11019 kuberuntime_manager.go:422] No sandbox for pod "nginx-rsyslog-pod_default(d3f0619b-72d9-4c59-8135-b5aa50d08ef6)" can be found. Need to start a new one
+2020-04-01T14:26:17-04:00 node-1 kubelet[11019]: I0401 14:26:17.928415   11019 kuberuntime_manager.go:422] No sandbox for pod "nginx-rsyslog-pod_default(d3f0619b-72d9-4c59-8135-b5aa50d08ef6)" can be found. Need to start a new one
+2020-04-01T14:26:18-04:00 node-1 kubelet[11019]: I0401 14:26:18.905934   11019 provider.go:98] Refreshing cache for provider: *credentialprovider.defaultDockerConfigProvider
+2020-04-01T14:26:18-04:00 node-1 kubelet[11019]: I0401 14:26:18.905934   11019 provider.go:98] Refreshing cache for provider: *credentialprovider.defaultDockerConfigProvider
+2020-04-01T14:26:19-04:00 node-1 kubelet[11019]: I0401 14:26:19.326189   11019 kubelet.go:1952] SyncLoop (PLEG): "nginx-rsyslog-pod_default(d3f0619b-72d9-4c59-8135-b5aa50d08ef6)", event: &pleg.PodLifecycleEvent{ID:"d3f0619b-72d9-4c59-8135-b5aa50d08ef6", Type:"ContainerStarted", Data:"fa4badf40f9f67791196f97aa7b566c46e182a6fbdd85dc3ed0d5dcb90028bde"}
+That's it for this lab.
+
+Rocket Scientist: Challenge
+Add the other two nodes to your rsyslog service and collect logs from them via new deployments.

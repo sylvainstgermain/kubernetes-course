@@ -74,7 +74,6 @@ Commercial support is available at
 # Take a look at the logs of your pod again.
 kubectl logs nginx
 
-
 # 127.0.0.1 - - [16/Apr/2020:03:15:35 +0000] "GET / HTTP/1.1" 200 612 "-" 
 # "curl/7.58.0" "-"
 # Now we want to stream the logs of your pod. Open a third tmux pane. On 
@@ -86,7 +85,7 @@ kubectl logs -f nginx
 curl http://127.0.0.1:2224/
 
 # If you really want the log to 'pop', try sending a GET that includes your name in the endpoint request.
-curl http://127.0.0.1:2224/<your-name>
+curl http://127.0.0.1:2224/stgermains
 
 CHALLENGE: View the logs of a different pod! You may need to launch a new pod to complete this step.
 SOLUTION step 1 - kubectl apply -f webby-nginx.yaml
