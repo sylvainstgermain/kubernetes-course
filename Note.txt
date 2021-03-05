@@ -884,12 +884,94 @@ Possible remove taint from nodes
 kubectl describe nodes
 kubectl taint nodes node-01 app=new-app:NoSchedule 
 
+=================================
+Friday
+===================================
 
+In kubernetes what is the line to be trace between developpers and system administrator?
 
+* System admin need all waht developper knows (CKAD)
+* Exam on claud Native
 
+What is the rôle of the system administrator regarding Kubernetes ? (CKA, CKS)
 
+* RBAC (Admin)
+* Role on namespace
+* Assing those ROLES
+* Fire up component of the cluseter
+* Network plugin, master high available
+* Enough nodes on the pool, underline infrastructure make up the nodes
+* Perform a version upgrade on the cluster
+* Implement etcd backup and restore
 
+* Pushing the change to operation
+* Knowing what parameers can be (probes )
+* Resources limits requets, etc ...
+* Service and Networking (Calico)
+* Activities between pods
+* Loadbalancer, ClusterIP, Nodeport, Ingrees controller, coredns
+* evrything under kube-system
+* Service expose to client
+* Cluster setup
+AP1 = v1 # primitive
 
+What pods, services, mechanism that is 100% system admin related ?
+
+What is on the blurr line?  
+* Where we have same objective
+* Knowing how the stuff works
+
+de Chad Feeser à Tous mes contacts:
+https://www.cncf.io/certification/ckad/
+
+====================================
+CKAD Exam : 2 hours
+https://www.cncf.io/certification/ckad/
+====================================
+* Using tmux
+* Before using a task (weight on the task)
+* First -> Check always to be on the right context !!!!
+* create the pods nginx with version 1.7.9
+* fire the pods in the production environment
+* let the pods run and save the logs
+      kubeclt logs nginx > /opt/K*S/logs
+* Passing score is 66%
+* Good thing is the question stay organize for manifest per task
+   vim task01-pods.yaml
+* Super secret tip !!!!
+  CKAD is online 2 tab opened
+    tab 1 : test
+    tab 2 : any page on kubernetes.io !!!!
+            Bookmark on kubernetes IO !!!!
+            Organise bookmark on kubernetes.io
+            cut and paste manifest and fill the blank
+            question with most point is on storage
+            difficult to find manifest on storage
+            email with a lot 
+
+# For the test
+* Clean desk camera open !!!
+* One monitor
+* Can put flags on question skipped
+* alway run the context command
+* weight between 2% and 13% can get partial credit on question
+* All question in independent "sandbox"
+
+* Only have 2 chances !
+* Take the first exam whatever, learn and be prepared for the second time
+
+csfeeser@alta3.com
+
+--------------------
+HELm
+----------------------
+* Predictable deployment
+* versionning
+* Work on the same place and location
+* Testing and version control is great roolback aplication as well
+* It as is own suite of commands outsibe kubectl
+
+help create
 
 
 

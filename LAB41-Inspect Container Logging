@@ -1,0 +1,127 @@
+===========================================================================
+CKAD Objective
+Understand container logging
+When your application needs debugging, it's helpful to be able to dig deeper
+into what the application is doing. The ability to access the logs of a pod 
+in your Kubernetes cluster is quite easy. Kubernetes provides the logs 
+command for debugging and troubleshooting running containers.
+
+Lab Objective
+Review the logs of a pod and see what this command actually offers. It may 
+be more than you need, or it may be less than you need.
+
+Access the logs of a pod that is currently running to see the information 
+available to you.
+
+Procedure
+First, we need to create a new pod in order to check it's logs. Create your 
+basic nginx pod again. If you misplaced the filename, here is the Pod 
+Manifest you should be using.
+===========================================================================
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.18.0
+    ports:
+    - containerPort: 80
+
+# Ensure a pod is running
+kubectl apply -f nginx.yaml
+
+#Now check out the logs of the nginx pod.
+kubectl logs nginx
+
+# It looks like there are no entries. This is because there have been no 
+# access attempts to the container. Let's port-forward this pod so that we 
+# can use curl to get an access attempt logged.
+kubectl port-forward nginx 2224:80 --address=0.0.0.0
+
+# Make sure you move into a new tmux pane for the following steps. Once there, 
+# let's curl the NGINX service.
+curl http://127.0.0.1:2224/
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>    
+
+# Take a look at the logs of your pod again.
+kubectl logs nginx
+
+
+# 127.0.0.1 - - [16/Apr/2020:03:15:35 +0000] "GET / HTTP/1.1" 200 612 "-" 
+# "curl/7.58.0" "-"
+# Now we want to stream the logs of your pod. Open a third tmux pane. On 
+# the new third pane, run the command below to stream the logs.
+kubectl logs -f nginx
+
+# On the second terminal, run some commands to produce log output on the first
+# terminal.
+curl http://127.0.0.1:2224/
+
+# If you really want the log to 'pop', try sending a GET that includes your name in the endpoint request.
+curl http://127.0.0.1:2224/<your-name>
+
+CHALLENGE: View the logs of a different pod! You may need to launch a new pod to complete this step.
+SOLUTION step 1 - kubectl apply -f webby-nginx.yaml
+SOLUTION step 2 - kubectl logs -f webby-nginx.yaml -c webby # the -c means "the container named webby"
+SOLUTION step 3 - split the screen with ctrl+b then SHIFT+double-quote
+SOLUTION step 4 - sudo kubectl port-forward webby-nginx 2224:80 # set up a port-forward to your container
+SOLUTION step 5 - split the screen AGAIN with ctrl+b then SHIFT+double-quote
+SOLUTION step 6 - curl http://127.0.0.1:2224/ # produce traffic to your pod
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,220 @@
+Using Helm to install a Chart
+Lab Objective
+The objective of this lab is to install and learn to navigate Helm. By the conclusion of this lab you should understand Helm, charts, and its relationship to Kubernetes. This is what a typical file structure for a chart may look like. If you are familiar with ansible, you may notice some similarities here.
+
+￼
+    wordpress/
+      Chart.yaml           # A YAML file containing information about the chart
+      LICENSE              # OPTIONAL: A plain text file containing the license for the chart
+      README.md            # OPTIONAL: A human-readable README file
+      requirements.yaml    # OPTIONAL: A YAML file listing dependencies for the chart
+      values.yaml          # The default configuration values for this chart
+      charts/              # A directory containing any charts upon which this chart depends
+      templates/           # A directory of templates that, when combined with values,
+                           # will generate valid Kubernetes manifest files.
+      templates/ NOTES.txt # OPTIONAL: A plain text file containing short usage notes
+Check out the overall overview of a Helm here:
+https://helm.sh/docs/helm/helm/
+
+NOTE: The mariaDB pods deployed by Helm in this lab may become "stuck" in a "pending" phase, if you did not successfully complete the NFS storage lab. No big deal if this happens, it will not negatively impact your understanding of Helm.
+
+Procedure
+# Use the Snap package manager to install Helm. Think of Helm is a 
+# replacement for kubectl. Helm uses the same auth files as kubectl to 
+# auth with Master API, so installing where kubectl is alreay setup (typically) results in plugin-and-play style integration.
+
+sudo snap install helm --classic
+
+￼
+#2020-04-15T22:09:40-04:00 INFO Waiting for restart...
+#helm 3.1.2 from Snapcrafters installed    ```
+#Verify the version of Helm you are using. Helm had a MAJOR update in 
+# January 2020. It went from version 2.x to version 3.x. A version just 
+# for Helm means your old helm charts may no longer work! So, we want to 
+#be sure we're on a 3.x version, and using the latest Helm charts.
+
+helm version
+version.BuildInfo{Version:"v3.1.2", GitCommit:"d878d4d45863e42fd5cff6743294a11d28a9abce", GitTreeState:"clean", GoVersion:"go1.13.8"}
+
+#You can find publicly available charts by running helm search hub.
+# This will search hub.helm.sh for charts. One thing to note... hub.helm.sh 
+# only points to github repos. You can't actually use it as a repo itself.
+# Think of it more like a webpage filled with advertisements. This is not
+# made clear in the Helm documentation. Understand, you must add your own #
+#repos to the Helm client. It comes into the world with none. The following 
+# command asks to search hub.helm.sh for charts relating to wordpress.
+#
+helm search hub wordpress
+
+# Answer the following questions:
+# What is a chart?
+#*A chart is just a directory filled with files that teach Helm how to deploy resources in Kubernetes. The repository https://hub.helm.sh centralizes community created charts that allow you to get up and running with apps, fast.
+#So is Helm a package manager for the Kubernetes platform?
+#Yes! The same way you might use 'apt' or 'yum' to deploy apps in an OS, you can use Helm to deploy apps in a cluster.
+#Do I still make manifests?
+#Yes, only rather than deploy manifests with kubectl, we can organize those manifests in a chart (directory tree). When properly organized, we can then use Helm to deploy.
+
+#To use Helm, we must connect it to repos. Notice that a Helm 
+# repo can live on a GitHub repo (it's just a directory that get's tar'd up).
+
+helm repo add brigade https://brigadecore.github.io/charts
+
+# Examine the charts in the newly added "brigade" repo.
+
+helm search repo brigade
+
+# Helm uses "fuzzy" logic, so it is possible to just enter part of a search 
+# string:
+helm search repo kash
+
+# Also add the bitnami repo.
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+# Run update to make sure you are synced to the latest available charts.
+helm repo update
+
+# Search is a good way to find available packages. Once you have found a 
+# package you want to install, you can use helm install to install it. To 
+# install a new package, use the helm install command. At its simplest, 
+# it takes two arguments: A release name that you pick, and the name of 
+# the chart you want to install. NOTE: If you skipped the NFS lab, or had 
+# an issue with it, the following command may appear to work, but pods will 
+# be in a "pending" state. No big deal, your understanding of Helm won't be
+# impacted by a pod failing to build.
+
+helm install happy-panda bitnami/mariadb --set global.storageClass=managed-nfs-storage
+
+#Now the mariadb chart is installed. Note that installing a chart creates a 
+# new release object. The release above is named happy-panda. 
+# (If you want Helm to generate a name for you, leave off the release
+# name and use --generate-name.) To keep track of a release's state, 
+# or to re-read configuration information, you can use helm status. 
+# The result shows the current state of your release:
+
+helm status happy-panda
+
+#A release does correlate to resources deployed on kubernetes. We can 
+# use kubectl to see this, but we don't want to use kubectl to manage these 
+# resources. That's now a job for Helm. Run kubectl get pods to see the 
+# happy-panda resource you just created. NOTE: If your pod is stuck in a "pending" state, than it is either still building, or it is possible you made an error in the NFS Storage lab. No big deal, your understandning won't be impacted by a pod failing to build.
+
+kubectl get pods
+
+# Installing the way we have here will only use the default configuration 
+# options for this chart. Many times, you will want to customize the chart to use your preferred configuration. To see what options are configurable on a chart, use helm show values.
+helm show values bitnami/mariadb
+
+# When it is time to uninstall a release from the cluster, use the helm 
+# uninstall command:
+helm uninstall happy-panda
+
+# Once again, look at all of the releases with helm list
+helm list
+
+#Current repos can also be shown with the list command.
+helm repo list
+
+# Repos can be removed with helm repo remove
+helm repo remove brigade
+
+# Because chart repositories change frequently, at any point you can make
+# sure your Helm client is up to date by running helm repo update.
+helm repo update
+
+# Let's try installing a "fun" solution. There is a popular game called, 
+#"Dont Starve Together", that allows Steam clients to connect to servers. 
+# The game designers released the source code, and it runs perfectly inside
+# of a container. Some enterprising gamer took it upon themselves to write
+# a Helm chart to install the game server. Let's check out that chart now: 
+# https://hub.helm.sh/charts/halkeye/dontstarvetogether
+
+# See in the upper right hand-corner, the two instructions on how to install
+# it? First we add the repo, then we can install the chart. Let's do that.
+helm repo add halkeye https://halkeye.github.io/helm-charts/
+
+# Now install the chart. This will take some time, as the image must be 
+# downloaded. Search is a good way to find available packages. Once you 
+# have found a package you want to install, you can use helm install to 
+# install it. To install a new package, use the helm install command. At
+# its simplest, it takes two arguments: A release name that you pick, and 
+#the name of the chart you want to install.
+helm install fun-gamer halkeye/dontstarvetogether --version 0.1.0
+
+# Now the dontstarvetogether chart is installed. Note that installing a 
+# chart creates a new release object. The release above is named fun-gamer.
+#  (If you want Helm to generate a name for you, leave off the release name 
+# and use --generate-name.) To keep track of a release's state, or to 
+# re-read configuration information, you can use helm status. 
+# The result shows the current state of your release:
+helm status fun-gamer
+
+# Look at the default values associated with the chart.
+helm show values halkeye/dontstarvetogether
+
+# If you scroll up a bit, you'll see a value that controls how many players
+# can connect to the game. Let's limit that value in our release. Create the following YAML file.
+vim customgame.yaml￼
+￼
+config:
+  max_players: 8
+Save and exit.
+
+#Upgrade our release so the game can only support 8 players.
+helm upgrade -f customgame.yaml fun-gamer halkeye/dontstarvetogether
+
+# Make sure your new settings are now set.
+helm get values fun-gamer
+
+# Quick, before the boss sees! Remove the game server!
+helm uninstall fun-gamer
+
+# Time to get some experience creating a Helm chart. To begin, know that
+# Helm can create a chart directory, and spawn the required associated files. In this case, we're asking for a chart called, "mychart". Simple.
+helm create mychart
+Creating mychart
+
+# Take a look at the file structure of your chart.
+ls -la ~/mychart/*￼
+-rw-r--r-- 1 student student  905 Mar 31 15:33 /home/student/mychart/Chart.yaml
+-rw-r--r-- 1 student student 1554 Mar 31 15:33 /home/student/mychart/values.yaml
+
+/home/student/mychart/charts:
+total 8
+drwxr-xr-x 2 student student 4096 Mar 31 15:33 .
+drwxr-xr-x 4 student student 4096 Mar 31 15:33 ..
+
+/home/student/mychart/templates:
+total 36
+drwxr-xr-x 3 student student 4096 Mar 31 15:33 .
+drwxr-xr-x 4 student student 4096 Mar 31 15:33 ..
+-rw-r--r-- 1 student student 1581 Mar 31 15:33 NOTES.txt
+-rw-r--r-- 1 student student 1847 Mar 31 15:33 _helpers.tpl
+-rw-r--r-- 1 student student 1626 Mar 31 15:33 deployment.yaml
+-rw-r--r-- 1 student student 1030 Mar 31 15:33 ingress.yaml
+-rw-r--r-- 1 student student  361 Mar 31 15:33 service.yaml
+-rw-r--r-- 1 student student  321 Mar 31 15:33 serviceaccount.yaml
+drwxr-xr-x 2 student student 4096 Mar 31 15:33 tests
+
+# Another way to take a good look at the file structure of your chart is 
+# with the tree utility. Let's install that now.
+sudo apt install tree -y
+
+# Now take a look at your mychart directory using tree.
+tree ~/mychart/
+￼
+/home/student/mychart/
+├── Chart.yaml  # A YAML file containing information about the chart
+├── charts  # A directory containing any charts upon which this chart depends
+├── templates  # A directory of templates that, when combined with values will generate valid Kubernetes manifest files.
+│   ├── NOTES.txt  # OPTIONAL: A plain text file containing short usage notes
+│   ├── _helpers.tpl
+│   ├── deployment.yaml
+│   ├── ingress.yaml
+│   ├── service.yaml
+│   ├── serviceaccount.yaml
+│   └── tests
+│       └── test-connection.yaml
+└── values.yaml  # The default configuration values for this chart
+Creating charts can range from the very basic to very complex. In later labs, we'll create a simple chart, as well as some charts created by Google. Be sure to study the above chart's organization and structure, maybe cat a file or two.
+
+That's it for this lab! If you find yourself finishing early, you may want to review https://hub.helm.sh or https://github.com or for helm charts. Happy Helming!

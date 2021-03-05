@@ -1,0 +1,84 @@
+Lab Objective
+Wrap the application you have been working on into a Helm Chart so that you will be able to re-deploy it quickly whenever an update needs pushed.
+You have gone through a ton or work these past few days to learn how to administer and develop applications with a Kubernetes cloud that provides high availability and low resource utilization.
+
+Procedure
+
+#Create a new chart called webby-chart with Helm.
+
+helm create webby-chart
+Creating webby-chart
+
+#Remove all of the current templates.
+rm -rf ~/webby-chart/templates/*
+
+# Copy your composite deployment manifest into the templates directory.
+cp webby-nginx-combo.yaml ~/webby-chart/templates/
+
+# Next, let's export the webby-keys secret into the templates directory.
+kubectl get secrets webby-keys -o yaml > ~/webby-chart/templates/webby-keys.yaml
+
+# Now we have to get all of our ConfigMaps exported into the templates 
+# directory as well. First ensure you have the index-file
+kubectl get cm index-file -o yaml > ~/webby-chart/templates/index-file.yaml
+
+# Great! Now ensure you have the nginx-conf
+kubectl get cm nginx-conf -o yaml > ~/webby-chart/templates/nginx-conf.yaml
+
+# Finally, dump a copy of the configMap nginx-txt
+kubectl get cm nginx-txt -o yaml > ~/webby-chart/templates/nginx-txt.yaml
+
+# Now we need to make sure that we have this chart working properly. To do so,
+# let's clean out our cluster and start over again with Helm. First, delete
+# all of the ConfigMaps.
+kubectl delete cm --all
+
+# Next, delete a deployment.
+kubectl delete deploy nginx-webby
+
+# Finally, delete the webby-keys secret.
+#Note: DO NOT delete all secrets
+kubectl delete secret webby-keys
+secret "webby-keys" deleted
+
+# Verify that there are no Pods, Deployments, or ConfigMaps running. If so,
+# delete them. (You may likely have random pods from previous labs running 
+# still).
+kubectl get pods,deploy,cm
+
+# Now is the moment you have been waiting for. It is time to deploy your 
+# Chart with Helm and verify that it is working.
+helm install ./webby-chart --generate-name
+
+NAME: webby-chart-1587003842
+LAST DEPLOYED: Wed Apr 15 22:24:03 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None        
+
+# Let's check out the pods that are now running from the helm deployment. 
+# Pretty cool, huh!?
+kubectl get pods
+NAME                                 READY   STATUS              RESTARTS   AGE
+nginx-webby-combo-7f74d6c7df-2vmdh   0/3     ContainerCreating   0          9s
+nginx-webby-combo-7f74d6c7df-mkbpd   0/3     ContainerCreating   0          9s
+nginx-webby-combo-7f74d6c7df-ssflf   0/3     ContainerCreating   0          9s
+
+# Verify that you can access the website by port-forwarding one of the pods 
+# and curling your localhost.
+sudo kubectl port-forward <FULL_POD_NAME> 80:80
+sudo kubectl port-forward nginx-webby-combo-7f74d6c7df-2vmdh 2224:80
+
+
+curl 127.0.0.1:2224
+
+Awesome! Great job! Now package up your chart so that you have it recorded somewhere nice and neat.
+
+student@bchd:~$ helm package webby-chart
+
+
+Successfully packaged chart and saved it to: /home/student/webby-chart-0.1.0.tgz
+Helm will default to adding this new chart to a local repository. Since we have Tiller running, the way to install this chart again would be to run helm install local/webby-chart-0.1.0.tgz
+
+The following lab is intended to be used as practice for after the class is complete, or for those students who have found themselves ahead of the rest of the class.
